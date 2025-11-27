@@ -2,6 +2,7 @@
 
 namespace App\Repository\Eloquent;
 
+use App\Enums\QueryReturnType;
 use App\Repository\Contracts\RepositoryInterface;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +16,86 @@ abstract class Repository implements RepositoryInterface
     public function __construct(Model $model)
     {
         $this->model = $model;
+    }
+
+    /**
+     * Generic query builder with optional scopes and flexible return types
+     *
+     * @param array $scopes Array of scopes (optional). Can be:
+     *                      - Simple array: ['scopeName1', 'scopeName2']
+     *                      - Associative array with parameters: ['scopeName' => $param] or ['scopeName' => [$param1, $param2]]
+     * @param array $columns Columns to select
+     * @param array $relations Relations to eager load
+     * @param QueryReturnType $returnType Return type (GET, FIRST, PAGINATE, or QUERY)
+     * @param int $perPage Items per page (only used if $returnType is PAGINATE)
+     * @param string $orderBy Order direction (ASC or DESC)
+     * @param string $orderColumn Column to order by
+     * @return Collection|Model|Builder|\Illuminate\Contracts\Pagination\LengthAwarePaginator|null
+     *
+     * @example
+     * // Get all with scopes
+     * $repository->query(['active', 'verified']);
+     *
+     * // Get with parameters
+     * $repository->query(['status' => 'active', 'role' => 'admin']);
+     *
+     * // Get first result
+     * $repository->query(['active'], returnType: QueryReturnType::FIRST);
+     *
+     * // Get paginated results
+     * $repository->query(
+     *     scopes: ['active', 'status' => 'pending'],
+     *     columns: ['*'],
+     *     relations: ['profile'],
+     *     returnType: QueryReturnType::PAGINATE,
+     *     perPage: 15,
+     *     orderBy: 'DESC',
+     *     orderColumn: 'created_at'
+     * );
+     *
+     * // Get query builder for further customization
+     * $query = $repository->query(['active'], returnType: QueryReturnType::QUERY);
+     * $results = $query->where('created_at', '>', now()->subDays(7))->get();
+     *
+     * // No scopes, just get all
+     * $repository->query();
+     */
+    public function query(
+        array $scopes = [],
+        array $columns = ['*'],
+        array $relations = [],
+        QueryReturnType $returnType = QueryReturnType::GET,
+        int $perPage = 10,
+        string $orderBy = 'ASC',
+        string $orderColumn = 'id'
+    ) {
+        $query = $this->model::query()->select($columns)->with($relations);
+
+        // Apply scopes if provided
+        foreach ($scopes as $scope => $parameters) {
+            // If scope is numeric, it means no parameters (e.g., ['active', 'verified'])
+            if (is_numeric($scope)) {
+                $scopeName = $parameters;
+                $query = $query->{$scopeName}();
+            } else {
+                // Scope has parameters
+                $scopeName = $scope;
+                // Ensure parameters is an array
+                $params = is_array($parameters) ? $parameters : [$parameters];
+                $query = $query->{$scopeName}(...$params);
+            }
+        }
+
+        // Apply ordering
+        $query = $query->orderBy($orderColumn, $orderBy);
+
+        // Return based on the return type using match
+        return match ($returnType) {
+            QueryReturnType::GET => $query->get(),
+            QueryReturnType::FIRST => $query->first(),
+            QueryReturnType::PAGINATE => $query->paginate($perPage),
+            QueryReturnType::QUERY => $query,
+        };
     }
 
     public function getAll(array $columns = ['*'], array $relations = []): Collection
@@ -127,72 +208,5 @@ abstract class Repository implements RepositoryInterface
     public function whereHasMorph($relation, $class)
     {
         return $this->model::query()->whereHasMorph($relation, $class)->get();
-    }
-
-    /**
-     * Apply model scopes to the query with optional parameters
-     *
-     * @param array $scopes Array of scopes. Can be:
-     *                      - Simple array: ['scopeName1', 'scopeName2']
-     *                      - Associative array with parameters: ['scopeName' => $param] or ['scopeName' => [$param1, $param2]]
-     * @param array $columns Columns to select
-     * @param bool $paginate Whether to paginate results
-     * @param int $perPage Items per page (only used if $paginate is true)
-     * @param array $relations Relations to eager load
-     * @param string $orderBy Order direction (ASC or DESC)
-     * @param string $orderColumn Column to order by
-     * @return Collection|array|\Illuminate\Contracts\Pagination\LengthAwarePaginator
-     *
-     * @example
-     * // Without parameters, no pagination
-     * $repository->filter(['active', 'verified']);
-     *
-     * // With single parameter
-     * $repository->filter(['status' => 'active', 'role' => 'admin']);
-     *
-     * // With multiple parameters
-     * $repository->filter(['createdBetween' => ['2024-01-01', '2024-12-31']]);
-     *
-     * // Mixed with pagination
-     * $repository->filter(
-     *     ['active', 'status' => 'pending', 'type' => 'premium'],
-     *     ['*'],
-     *     true,
-     *     15,
-     *     ['profile'],
-     *     'DESC',
-     *     'created_at'
-     * );
-     */
-    public function filter(
-        array $scopes,
-        array $columns = ['*'],
-        bool $paginate = false,
-        int $perPage = 10,
-        array $relations = [],
-        string $orderBy = 'ASC',
-        string $orderColumn = 'id'
-    ) {
-        $query = $this->model::query()->select($columns)->with($relations);
-
-        foreach ($scopes as $scope => $parameters) {
-            // If scope is numeric, it means no parameters (e.g., ['active', 'verified'])
-            if (is_numeric($scope)) {
-                $scopeName = $parameters;
-                $query = $query->{$scopeName}();
-            } else {
-                // Scope has parameters
-                $scopeName = $scope;
-                // Ensure parameters is an array
-                $params = is_array($parameters) ? $parameters : [$parameters];
-                $query = $query->{$scopeName}(...$params);
-            }
-        }
-
-        // Apply ordering
-        $query = $query->orderBy($orderColumn, $orderBy);
-
-        // Return paginated or all results based on the $paginate parameter
-        return $paginate ? $query->paginate($perPage) : $query->get();
     }
 }

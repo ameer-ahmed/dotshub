@@ -2,12 +2,23 @@
 
 namespace App\Repository\Contracts;
 
+use App\Enums\QueryReturnType;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 interface RepositoryInterface
 {
+    public function query(
+        array $scopes = [],
+        array $columns = ['*'],
+        array $relations = [],
+        QueryReturnType $returnType = QueryReturnType::GET,
+        int $perPage = 10,
+        string $orderBy = 'ASC',
+        string $orderColumn = 'id'
+    );
+
     public function getAll(array $columns = ['*'], array $relations = []): Collection;
 
     public function getActive(array $columns = ['*'], array $relations = []): Collection;
@@ -56,14 +67,4 @@ interface RepositoryInterface
     );
 
     public function whereHasMorph($relation, $class);
-
-    public function filter(
-        array $scopes,
-        array $columns = ['*'],
-        bool $paginate = false,
-        int $perPage = 10,
-        array $relations = [],
-        string $orderBy = 'ASC',
-        string $orderColumn = 'id'
-    );
 }
