@@ -56,4 +56,14 @@ interface RepositoryInterface
     );
 
     public function whereHasMorph($relation, $class);
+
+    public function filter(
+        array $scopes,
+        array $columns = ['*'],
+        bool $paginate = false,
+        int $perPage = 10,
+        array $relations = [],
+        string $orderBy = 'ASC',
+        string $orderColumn = 'id'
+    );
 }
