@@ -1,4 +1,4 @@
-FROM php:8.4-fpm
+FROM php:8.5-fpm
 
 # Set working directory
 WORKDIR /var/www/html
@@ -36,11 +36,10 @@ RUN docker-php-ext-install bcmath
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install intl
 
-# Enable opcache (it's a core extension, may already be available)
-RUN docker-php-ext-enable opcache || docker-php-ext-install opcache
+# OPcache is now built-in to PHP 8.5 as a required extension - no installation needed
 
-# Install Redis extension (use beta channel for PHP 8.4 compatibility)
-RUN pecl install redis-6.1.0 && docker-php-ext-enable redis
+# Install Redis extension (use latest stable version for PHP 8.5 compatibility)
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
