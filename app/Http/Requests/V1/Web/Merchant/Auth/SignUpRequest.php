@@ -34,6 +34,8 @@ class SignUpRequest extends FormRequest
         $this->ensureUniqueOrFail($subdomain);
 
         $base = (string)config('app.domain');
+        $base = parse_url('//' . $base, PHP_URL_HOST) ?: $base;
+
         $this->merge([
             'merchant_domain' => "{$subdomain}.{$base}",
         ]);
@@ -66,6 +68,7 @@ class SignUpRequest extends FormRequest
     private function ensureUniqueOrFail(string $subdomain): void
     {
         $base = (string)config('app.domain');
+        $base = parse_url('//' . $base, PHP_URL_HOST) ?: $base;
         $full = "{$subdomain}.{$base}";
 
         /** @var \App\Repository\Contracts\DomainRepositoryInterface $domainRepository */
