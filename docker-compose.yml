@@ -4,14 +4,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: laravel-app
+    container_name: dotshub-app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
       - ./:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - laravel
+      - dotshub
     depends_on:
       - db
       - redis
@@ -19,7 +19,7 @@ services:
   # Nginx Service
   webserver:
     image: nginx:alpine
-    container_name: laravel-webserver
+    container_name: dotshub-webserver
     restart: unless-stopped
     ports:
       - "8000:80"
@@ -28,14 +28,14 @@ services:
       - ./:/var/www/html
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - laravel
+      - dotshub
     depends_on:
       - app
 
   # MySQL Service
   db:
     image: mysql:8.0
-    container_name: laravel-db
+    container_name: dotshub-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: ${DB_DATABASE:-laravel}
@@ -46,25 +46,26 @@ services:
       SERVICE_NAME: mysql
     volumes:
       - dbdata:/var/lib/mysql
+      - ./docker/mysql/init-privileges.sql:/docker-entrypoint-initdb.d/init-privileges.sql
     ports:
       - "3307:3306"
     networks:
-      - laravel
+      - dotshub
 
   # Redis Service
   redis:
     image: redis:alpine
-    container_name: laravel-redis
+    container_name: dotshub-redis
     restart: unless-stopped
     ports:
       - "6380:6379"
     networks:
-      - laravel
+      - dotshub
 
   # phpMyAdmin Service
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: laravel-phpmyadmin
+    container_name: dotshub-phpmyadmin
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -75,14 +76,14 @@ services:
       PMA_PASSWORD: ${DB_PASSWORD:-secret}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
-      - laravel
+      - dotshub
     depends_on:
       - db
 
 
 # Docker Networks
 networks:
-  laravel:
+  dotshub:
     driver: bridge
 
 # Volumes
