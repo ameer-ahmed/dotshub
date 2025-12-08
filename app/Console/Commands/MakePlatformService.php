@@ -19,6 +19,7 @@ class MakePlatformService extends Command
         {--domain=Role : Domain folder under Actor}
         {--api-version=1 : API version number}
         {--platform=web : Comma-separated: web,mobile (default: web)}
+        {--tenant : Generate model and repository for tenant (Models/Tenant, Repository/Contracts/Tenant, Repository/Eloquent/Tenant)}
         {--no-controller : Skip generating controllers}
         {--no-request : Skip generating request}
         {--no-resource : Skip generating resource}
@@ -40,6 +41,7 @@ class MakePlatformService extends Command
         $actor      = Str::studly($this->option('actor'));  // e.g. User
         $domain     = Str::studly($this->option('domain')); // e.g. Role
         $version    = (int) $this->option('api-version');
+        $isTenant   = (bool) $this->option('tenant');
         $makeCtrl   = !$this->option('no-controller');
         $makeReq    = !$this->option('no-request');
         $makeRes    = !$this->option('no-resource');
@@ -60,8 +62,8 @@ class MakePlatformService extends Command
 
         // === 0) Model ===
         if ($makeModel) {
-            $modelNs  = 'App\\Models';
-            $modelDir = app_path('Models');
+            $modelNs  = $isTenant ? 'App\\Models\\Tenant' : 'App\\Models';
+            $modelDir = $isTenant ? app_path('Models/Tenant') : app_path('Models');
             $modelCls = $name;
             $modelPath = "{$modelDir}/{$modelCls}.php";
 
@@ -154,8 +156,8 @@ class MakePlatformService extends Command
         // === 3) Repository ===
         if ($makeRepo) {
             // Interface
-            $repoInterfaceNs  = 'App\\Repository';
-            $repoInterfaceDir = app_path('Repository');
+            $repoInterfaceNs  = $isTenant ? 'App\\Repository\\Contracts\\Tenant' : 'App\\Repository\\Contracts';
+            $repoInterfaceDir = $isTenant ? app_path('Repository/Contracts/Tenant') : app_path('Repository/Contracts');
             $repoInterfaceCls = "{$name}RepositoryInterface";
             $repoInterfacePath = "{$repoInterfaceDir}/{$repoInterfaceCls}.php";
 
@@ -166,16 +168,19 @@ class MakePlatformService extends Command
             }
 
             // Eloquent implementation
-            $repoEloquentNs   = 'App\\Repository\\Eloquent';
-            $repoEloquentDir  = app_path('Repository/Eloquent');
+            $repoEloquentNs   = $isTenant ? 'App\\Repository\\Eloquent\\Tenant' : 'App\\Repository\\Eloquent';
+            $repoEloquentDir  = $isTenant ? app_path('Repository/Eloquent/Tenant') : app_path('Repository/Eloquent');
             $repoEloquentCls  = "{$name}Repository";
             $repoEloquentPath = "{$repoEloquentDir}/{$repoEloquentCls}.php";
+
+            // Determine model FQN based on tenant flag
+            $modelFqn = $isTenant ? "App\\Models\\Tenant\\{$name}" : "App\\Models\\{$name}";
 
             $this->makeDirectory($repoEloquentDir);
             $this->writeFile($repoEloquentPath, $this->renderRepoConcrete(
                 $repoEloquentNs,
                 $repoEloquentCls,
-                "App\\Models\\{$name}",
+                $modelFqn,
                 $repoInterfaceNs,
                 $repoInterfaceCls
             ));
@@ -343,7 +348,7 @@ PHP;
 
 namespace {$namespace};
 
-interface {$class} extends \App\Repository\RepositoryInterface
+interface {$class} extends \App\Repository\Contracts\RepositoryInterface
 {
 }
 
