@@ -38,10 +38,10 @@ services:
     container_name: dotshub-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-laravel}
+      MYSQL_DATABASE: ${DB_DATABASE:-v6}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
       MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_USER: ${DB_USERNAME:-laravel}
+      MYSQL_USER: ${DB_USERNAME:-dotshub}
       SERVICE_TAGS: dev
       SERVICE_NAME: mysql
     volumes:
@@ -72,7 +72,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: ${DB_USERNAME:-laravel}
+      PMA_USER: ${DB_USERNAME:-dotshub}
       PMA_PASSWORD: ${DB_PASSWORD:-secret}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
     networks:
