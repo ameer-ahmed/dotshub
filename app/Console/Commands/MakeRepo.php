@@ -17,6 +17,7 @@ class MakeRepo extends Command
         {name : Base name, e.g. Role}
         {--model= : Eloquent model FQCN or short name (defaults to App\Models\<Name> or App\Models\Tenant\<Name> with --tenant)}
         {--tenant : Generate under Contracts/Tenant and Eloquent/Tenant; default model under Models\Tenant}
+        {--no-model : Skip model creation even if it does not exist}
         {--force : Overwrite files if they exist}
     ';
 
@@ -34,6 +35,7 @@ class MakeRepo extends Command
         $modelOpt  = $this->option('model');                   // e.g. App\Models\Something or Something
         $isTenant  = (bool) $this->option('tenant');
         $force     = (bool) $this->option('force');
+        $noModel   = (bool) $this->option('no-model');
 
         // ==== Resolve model FQCN (short names resolved by tenancy) ====
         if ($modelOpt) {
@@ -42,6 +44,11 @@ class MakeRepo extends Command
                 : ($isTenant ? 'App\\Models\\Tenant\\' : 'App\\Models\\') . Str::studly($modelOpt);
         } else {
             $modelFqn = ($isTenant ? 'App\\Models\\Tenant\\' : 'App\\Models\\') . $name;
+        }
+
+        // ==== Create model if it doesn't exist (unless --no-model is set) ====
+        if (!$noModel) {
+            $this->ensureModelExists($modelFqn, $isTenant, $name);
         }
 
         // ==== Namespaces & paths (Contracts & Eloquent with Tenant variants) ====
@@ -216,5 +223,54 @@ PHP;
 
         $this->files->put($providerPath, $content);
         $this->info('RepositoryServiceProvider updated.');
+    }
+
+    // ===== Model creation =====
+
+    private function ensureModelExists(string $modelFqn, bool $isTenant, string $name): void
+    {
+        // Convert FQCN to file path
+        $modelPath = base_path(str_replace('\\', '/', str_replace('App\\', 'app/', $modelFqn)) . '.php');
+
+        if ($this->files->exists($modelPath)) {
+            $this->line("Model exists: {$modelPath}");
+            return;
+        }
+
+        // Create the model
+        $this->info("Creating model: {$modelFqn}");
+
+        if ($isTenant) {
+            // For tenant models, create in Models/Tenant directory
+            $this->createTenantModel($name, $modelPath);
+        } else {
+            // For regular models, use artisan command
+            $this->call('make:model', ['name' => $name]);
+        }
+    }
+
+    private function createTenantModel(string $name, string $modelPath): void
+    {
+        $namespace = 'App\\Models\\Tenant';
+        $modelContent = <<<PHP
+<?php
+
+namespace {$namespace};
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class {$name} extends Model
+{
+    use HasFactory;
+
+    protected \$fillable = [];
+}
+
+PHP;
+
+        $this->makeDirectory(dirname($modelPath));
+        $this->writeFile($modelPath, $modelContent);
+        $this->info("Created: {$modelPath}");
     }
 }

@@ -71,6 +71,8 @@ class MakePlatformService extends Command
             if (!$this->files->exists($modelPath)) {
                 $this->writeFile($modelPath, $this->renderModel($modelNs, $modelCls));
                 $this->info("Created: {$modelPath}");
+            } else {
+                $this->line("Model exists: {$modelPath}");
             }
         }
 
