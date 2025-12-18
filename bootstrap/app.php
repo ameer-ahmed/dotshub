@@ -25,14 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
         using: function () {
             Route::group(['prefix' => 'api', 'middleware' => ['api', 'localize']], function () {
                 Route::prefix('v1')->group(function () {
-                    Route::prefix('web')->group(function () {
-                        Route::prefix('admin')
-                            ->group(base_path('routes/api/v1/web/admin.php'));
+                    Route::prefix('admin')
+                        ->group(base_path('routes/api/v1/admin.php'));
 
-                        Route::prefix('merchant')
-                            ->middleware([InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class])
-                            ->group(base_path('routes/api/v1/web/merchant.php'));
-                    });
+                    Route::prefix('merchant')
+                        ->middleware([InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class])
+                        ->group(base_path('routes/api/v1/merchant.php'));
                 });
             });
         },

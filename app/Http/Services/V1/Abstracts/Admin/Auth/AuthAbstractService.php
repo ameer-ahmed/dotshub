@@ -3,8 +3,8 @@
 namespace App\Http\Services\V1\Abstracts\Admin\Auth;
 
 use App\Http\Helpers\Responser;
-use App\Http\Requests\V1\Web\Admin\Auth\SignInRequest;
-use App\Http\Requests\V1\Web\Admin\Auth\SignUpRequest;
+use App\Http\Requests\V1\Abstracts\Admin\Auth\SignInAbstractRequest;
+use App\Http\Requests\V1\Abstracts\Admin\Auth\SignUpAbstractRequest;
 use App\Http\Resources\V1\Web\Admin\User\UserResource;
 use App\Http\Services\PlatformService;
 use App\Repository\Contracts\Tenant\UserRepositoryInterface;
@@ -19,7 +19,7 @@ abstract class AuthAbstractService extends PlatformService
     {
     }
 
-    public function signUp(SignUpRequest $request) {
+    public function signUp(SignUpAbstractRequest $request) {
         DB::beginTransaction();
         try {
             $data = $request->validated();
@@ -35,7 +35,7 @@ abstract class AuthAbstractService extends PlatformService
         }
     }
 
-    public function signIn(SignInRequest $request) {
+    public function signIn(SignInAbstractRequest $request) {
         $credentials = $request->only('email', 'password');
         $token = auth('admin')->attempt($credentials);
         if ($token) {

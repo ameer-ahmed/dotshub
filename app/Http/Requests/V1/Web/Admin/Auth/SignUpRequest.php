@@ -2,30 +2,18 @@
 
 namespace App\Http\Requests\V1\Web\Admin\Auth;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Password;
+use App\Enums\Platform;
+use App\Http\Requests\V1\Abstracts\Admin\Auth\SignUpAbstractRequest;
 
-class SignUpRequest extends FormRequest
+class SignUpRequest extends SignUpAbstractRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
+    public static function platform(): Platform
     {
-        return true;
+        return Platform::WEB;
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string'],
-            'email' => ['required', 'email:rfc,dns'],
-            'password' => [Password::min(8)->letters()->numbers()->symbols()]
-        ];
+        return parent::rules();
     }
 }

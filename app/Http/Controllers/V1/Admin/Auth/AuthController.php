@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\V1\Web\Admin\Auth;
+namespace App\Http\Controllers\V1\Admin\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\Web\Admin\Auth\SignInRequest;
-use App\Http\Requests\V1\Web\Admin\Auth\SignUpRequest;
-use App\Http\Services\V1\Web\Admin\Auth\AuthService;
+use App\Http\Requests\V1\Abstracts\Admin\Auth\SignInAbstractRequest;
+use App\Http\Requests\V1\Abstracts\Admin\Auth\SignUpAbstractRequest;
+use App\Http\Services\V1\Abstracts\Admin\Auth\AuthAbstractService;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 class AuthController extends Controller implements HasMiddleware
 {
     public function __construct(
-        private readonly AuthService $authService,
+        private readonly AuthAbstractService $authService,
     )
     {
     }
@@ -24,11 +24,11 @@ class AuthController extends Controller implements HasMiddleware
         ];
     }
 
-    public function signUp(SignUpRequest $request) {
+    public function signUp(SignUpAbstractRequest $request) {
         return $this->authService->signUp($request);
     }
 
-    public function signIn(SignInRequest $request) {
+    public function signIn(SignInAbstractRequest $request) {
         return $this->authService->signIn($request);
     }
 

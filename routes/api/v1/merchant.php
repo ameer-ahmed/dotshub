@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Controllers\V1\Web\Merchant\Auth\AuthController;
-use App\Http\Controllers\V1\Web\Merchant\Role\RoleController;
+use App\Http\Controllers\V1\Merchant\Auth\AuthController;
+use App\Http\Controllers\V1\Merchant\Role\RoleController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -23,7 +23,3 @@ Route::group(['middleware' => 'auth:user'], function () {
         Route::delete('{id}', 'delete');
     });
 });
-
-
-
-

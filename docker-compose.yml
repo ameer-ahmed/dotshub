@@ -7,6 +7,7 @@ services:
     container_name: dotshub-app
     restart: unless-stopped
     working_dir: /var/www/html
+    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini

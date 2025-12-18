@@ -86,8 +86,41 @@ class MakePlatformService extends Command
         $this->writeFile($abstractPath, $this->renderAbstract($abstractNs, $abstractCls));
         $this->info("Created: {$abstractPath}");
 
-        // === 2) Per-platform services (+ controllers / request / resource) ===
+        // === 2) Abstract request ===
+        if ($makeReq) {
+            $abstractRequestNs  = "App\\Http\\Requests\\V{$version}\\Abstracts\\{$actor}\\{$domain}";
+            $abstractRequestDir = app_path("Http/Requests/V{$version}/Abstracts/{$actor}/{$domain}");
+            $abstractRequestCls = "{$name}AbstractRequest";
+            $abstractRequestPath = "{$abstractRequestDir}/{$abstractRequestCls}.php";
+
+            $this->makeDirectory($abstractRequestDir);
+            $this->writeFile($abstractRequestPath, $this->renderAbstractRequest($abstractRequestNs, $abstractRequestCls));
+            $this->info("Created: {$abstractRequestPath}");
+        }
+
+        // === 3) Single Controller (not platform-specific) ===
+        if ($makeCtrl) {
+            $controllerNs   = "App\\Http\\Controllers\\V{$version}\\{$actor}\\{$domain}";
+            $controllerDir  = app_path("Http/Controllers/V{$version}/{$actor}/{$domain}");
+            $controllerCls  = "{$name}Controller";
+            $controllerPath = "{$controllerDir}/{$controllerCls}.php";
+
+            $abstractServiceVar = lcfirst($abstractCls);
+
+            $this->makeDirectory($controllerDir);
+            $this->writeFile($controllerPath, $this->renderController(
+                $controllerNs,
+                $controllerCls,
+                $abstractNs,
+                $abstractCls,
+                $abstractServiceVar
+            ));
+            $this->info("Created: {$controllerPath}");
+        }
+
+        // === 4) Per-platform services (+ request / resource) ===
         $concretes = [];
+        $concreteRequests = [];
         foreach ($platforms as $platform) {
             $nsPlatform       = $platform === 'mobile' ? 'Mobile' : 'Web';
             $platformEnumCase = strtoupper($platform) === 'MOBILE' ? 'MOBILE' : 'WEB';
@@ -109,37 +142,26 @@ class MakePlatformService extends Command
             $this->info("Created: {$servicePath}");
             $concretes[] = "\\{$serviceNs}\\{$serviceCls}::class";
 
-            // Controller
-            if ($makeCtrl) {
-                $controllerNs   = "App\\Http\\Controllers\\V{$version}\\{$nsPlatform}\\{$actor}\\{$domain}";
-                $controllerDir  = app_path("Http/Controllers/V{$version}/{$nsPlatform}/{$actor}/{$domain}");
-                $controllerCls  = "{$name}Controller";
-                $controllerPath = "{$controllerDir}/{$controllerCls}.php";
-
-                $serviceFqn     = "\\{$serviceNs}\\{$serviceCls}";
-                $serviceVar     = lcfirst($serviceCls);
-
-                $this->makeDirectory($controllerDir);
-                $this->writeFile($controllerPath, $this->renderEmptyController(
-                    $controllerNs,
-                    $controllerCls,
-                    $serviceFqn,
-                    $serviceCls,
-                    $serviceVar
-                ));
-                $this->info("Created: {$controllerPath}");
-            }
-
-            // Request
+            // Request (platform-specific)
             if ($makeReq) {
                 $requestNs  = "App\\Http\\Requests\\V{$version}\\{$nsPlatform}\\{$actor}\\{$domain}";
                 $requestDir = app_path("Http/Requests/V{$version}/{$nsPlatform}/{$actor}/{$domain}");
                 $requestCls = "{$name}Request";
                 $requestPath = "{$requestDir}/{$requestCls}.php";
 
+                $abstractRequestNs = "App\\Http\\Requests\\V{$version}\\Abstracts\\{$actor}\\{$domain}";
+                $abstractRequestCls = "{$name}AbstractRequest";
+
                 $this->makeDirectory($requestDir);
-                $this->writeFile($requestPath, $this->renderRequest($requestNs, $requestCls));
+                $this->writeFile($requestPath, $this->renderPlatformRequest(
+                    $requestNs,
+                    $requestCls,
+                    $abstractRequestNs,
+                    $abstractRequestCls,
+                    $platformEnumCase
+                ));
                 $this->info("Created: {$requestPath}");
+                $concreteRequests[] = "\\{$requestNs}\\{$requestCls}::class";
             }
 
             // Resource
@@ -198,6 +220,11 @@ class MakePlatformService extends Command
         // === 4) Register in PlatformServiceProvider ===
         $abstractFqn = "\\{$abstractNs}\\{$abstractCls}::class";
         $this->registerInPlatformServiceProvider($abstractFqn, $concretes);
+
+        if ($makeReq && !empty($concreteRequests)) {
+            $abstractRequestFqn = "\\{$abstractRequestNs}\\{$abstractRequestCls}::class";
+            $this->registerRequestInPlatformServiceProvider($abstractRequestFqn, $concreteRequests);
+        }
 
         $this->info('All set ✅');
         return self::SUCCESS;
@@ -268,11 +295,11 @@ class {$class} extends {$abstractClass}
 PHP;
     }
 
-    private function renderEmptyController(
+    private function renderController(
         string $namespace,
         string $class,
-        string $serviceFqn,
-        string $serviceClass,
+        string $abstractServiceNs,
+        string $abstractServiceClass,
         string $serviceVar
     ): string {
         return <<<PHP
@@ -281,28 +308,28 @@ PHP;
 namespace {$namespace};
 
 use App\Http\Controllers\Controller;
-use {$serviceFqn};
+use {$abstractServiceNs}\\{$abstractServiceClass};
 
 class {$class} extends Controller
 {
     public function __construct(
-        private readonly {$serviceClass} \${$serviceVar},
+        private readonly {$abstractServiceClass} \${$serviceVar},
     ) {}
 }
 
 PHP;
     }
 
-    private function renderRequest(string $namespace, string $class): string
+    private function renderAbstractRequest(string $namespace, string $class): string
     {
         return <<<PHP
 <?php
 
 namespace {$namespace};
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\PlatformRequest;
 
-class {$class} extends FormRequest
+abstract class {$class} extends PlatformRequest
 {
     public function authorize(): bool
     {
@@ -312,8 +339,39 @@ class {$class} extends FormRequest
     public function rules(): array
     {
         return [
-            // TODO: rules
+            // TODO: Add validation rules
         ];
+    }
+}
+
+PHP;
+    }
+
+    private function renderPlatformRequest(
+        string $namespace,
+        string $class,
+        string $abstractNamespace,
+        string $abstractClass,
+        string $platformEnumCase
+    ): string {
+        return <<<PHP
+<?php
+
+namespace {$namespace};
+
+use App\Enums\Platform;
+use {$abstractNamespace}\\{$abstractClass};
+
+class {$class} extends {$abstractClass}
+{
+    public static function platform(): Platform
+    {
+        return Platform::{$platformEnumCase};
+    }
+
+    public function rules(): array
+    {
+        return parent::rules();
     }
 }
 
@@ -415,42 +473,56 @@ PHP;
 
         $content = $this->files->get($providerPath);
 
-        // Ensure bind exists
-        $bindNeedle = "\$this->app->bind(\n            {$abstractFqn},\n            \$this->resolve({$abstractFqn})\n        );";
-        if (!Str::contains($content, $bindNeedle)) {
-            $content = preg_replace(
-                '/private function bindServices\(\): void\s*\{\s*/',
-                "private function bindServices(): void\n    {\n        {$bindNeedle}\n\n        ",
-                $content,
-                1
-            );
-        }
+        // Extract version from abstractFqn (e.g., \App\Http\Services\V1\...)
+        preg_match('/\\\\V(\d+)\\\\/', $abstractFqn, $matches);
+        $version = $matches[1] ?? '1';
 
-        // Build the match arm with correct indentation
+        // Build the implementation array with proper formatting (each on new line)
         $uniqueConcretes = collect($concretes)->unique()->values()->all();
-        $implArray = "[\n                " . implode(",\n                ", $uniqueConcretes) . ",\n            ]";
+        $implLines = array_map(fn($impl) => "                    {$impl},", $uniqueConcretes);
+        $implArray = "[\n" . implode("\n", $implLines) . "\n                ]";
 
-        $indent = "        ";
-        if (preg_match('/getConcreteImplementations\s*\(.*\)\s*:\s*array\s*\{[^{]+match\s*\(\$abstract\)\s*\{(\s+)/m', $content, $m)) {
-            $indent = $m[1];
-        }
+        $newEntry = "{$abstractFqn} => {$implArray},";
 
-        $newArm = "{$indent}{$abstractFqn} => {$implArray},";
+        // Pattern to find the version block in getServiceImplementations
+        $versionPattern = '/(private function getServiceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(            \],)/s';
 
-        if (preg_match('/'.preg_quote($abstractFqn, '/').' => \[(.*?)\],/s', $content)) {
-            $content = preg_replace(
-                '/'.preg_quote($abstractFqn, '/').' => \[(.*?)\],/s',
-                $newArm,
-                $content,
-                1
-            );
+        if (preg_match($versionPattern, $content, $matches)) {
+            // Version block exists
+            $existingBindings = $matches[2];
+
+            // Check if abstract already exists
+            if (preg_match('/'.preg_quote($abstractFqn, '/').' => \[.*?\],/s', $existingBindings)) {
+                // Update existing entry
+                $content = preg_replace(
+                    '/(private function getServiceImplementations.*?' . $version . ' => \[.*?)'.preg_quote($abstractFqn, '/').' => \[.*?\],/s',
+                    "$1{$newEntry}",
+                    $content,
+                    1
+                );
+            } else {
+                // Add new entry before the closing bracket
+                $replacement = "$1$2                {$newEntry}\n$3";
+                $content = preg_replace($versionPattern, $replacement, $content, 1);
+            }
         } else {
-            $content = preg_replace(
-                '/'.$indent.'default => \[\],\s*\};/m',
-                "{$newArm}\n{$indent}default => [],\n        };",
-                $content,
-                1
-            );
+            // Version block doesn't exist - create it
+            $newVersionBlock = "            {$version} => [\n                {$newEntry}\n            ],\n";
+
+            // Insert before the default block (most reliable anchor point)
+            $insertPattern = '/(private function getServiceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?)(            default => \[\],)/s';
+
+            if (preg_match($insertPattern, $content)) {
+                $content = preg_replace(
+                    $insertPattern,
+                    "$1{$newVersionBlock}$2",
+                    $content,
+                    1
+                );
+                $this->info("Created new version {$version} block in getServiceImplementations.");
+            } else {
+                $this->warn("Could not automatically add version {$version} block. Please add it manually to getServiceImplementations().");
+            }
         }
 
         $this->files->put($providerPath, $content);
@@ -502,5 +574,71 @@ PHP;
 
         $this->files->put($providerPath, $content);
         $this->info('RepositoryServiceProvider updated.');
+    }
+
+    private function registerRequestInPlatformServiceProvider(string $abstractFqn, array $concretes): void
+    {
+        $providerPath = app_path('Providers/PlatformServiceProvider.php');
+        if (!$this->files->exists($providerPath)) {
+            $this->error('PlatformServiceProvider.php not found. Skipping request registration.');
+            return;
+        }
+
+        $content = $this->files->get($providerPath);
+
+        // Extract version from abstractFqn (e.g., \App\Http\Requests\V1\...)
+        preg_match('/\\\\V(\d+)\\\\/', $abstractFqn, $matches);
+        $version = $matches[1] ?? '1';
+
+        // Build the implementation array with proper formatting (each on new line)
+        $uniqueConcretes = collect($concretes)->unique()->values()->all();
+        $implLines = array_map(fn($impl) => "                    {$impl},", $uniqueConcretes);
+        $implArray = "[\n" . implode("\n", $implLines) . "\n                ]";
+
+        $newEntry = "{$abstractFqn} => {$implArray},";
+
+        // Pattern to find the version block in getRequestImplementations
+        $versionPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(            \],)/s';
+
+        if (preg_match($versionPattern, $content, $matches)) {
+            // Version block exists
+            $existingBindings = $matches[2];
+
+            // Check if abstract already exists
+            if (preg_match('/'.preg_quote($abstractFqn, '/').' => \[.*?\],/s', $existingBindings)) {
+                // Update existing entry
+                $content = preg_replace(
+                    '/(private function getRequestImplementations.*?' . $version . ' => \[.*?)'.preg_quote($abstractFqn, '/').' => \[.*?\],/s',
+                    "$1{$newEntry}",
+                    $content,
+                    1
+                );
+            } else {
+                // Add new entry before the closing bracket
+                $replacement = "$1$2                {$newEntry}\n$3";
+                $content = preg_replace($versionPattern, $replacement, $content, 1);
+            }
+        } else {
+            // Version block doesn't exist - create it
+            $newVersionBlock = "            {$version} => [\n                {$newEntry}\n            ],\n";
+
+            // Insert before the default block (most reliable anchor point)
+            $insertPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?)(            default => \[\],)/s';
+
+            if (preg_match($insertPattern, $content)) {
+                $content = preg_replace(
+                    $insertPattern,
+                    "$1{$newVersionBlock}$2",
+                    $content,
+                    1
+                );
+                $this->info("Created new version {$version} block in getRequestImplementations.");
+            } else {
+                $this->warn("Could not automatically add version {$version} block. Please add it manually to getRequestImplementations().");
+            }
+        }
+
+        $this->files->put($providerPath, $content);
+        $this->info('PlatformServiceProvider updated (requests).');
     }
 }

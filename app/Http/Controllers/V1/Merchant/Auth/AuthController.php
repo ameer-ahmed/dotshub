@@ -1,25 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\V1\Web\Merchant\Auth;
+namespace App\Http\Controllers\V1\Merchant\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\V1\Web\Merchant\Auth\SignInRequest;
-use App\Http\Requests\V1\Web\Merchant\Auth\SignUpRequest;
-use App\Http\Services\V1\Web\Merchant\Auth\AuthService;
+use App\Http\Requests\V1\Abstracts\Merchant\Auth\SignInAbstractRequest;
+use App\Http\Requests\V1\Abstracts\Merchant\Auth\SignUpAbstractRequest;
+use App\Http\Services\V1\Abstracts\Merchant\Auth\AuthAbstractService;
 
 class AuthController extends Controller
 {
     public function __construct(
-        private readonly AuthService $authService,
+        private readonly AuthAbstractService $authService,
     )
     {
     }
 
-    public function signUp(SignUpRequest $request) {
+    public function signUp(SignUpAbstractRequest $request) {
         return $this->authService->signUp($request);
     }
 
-    public function signIn(SignInRequest $request) {
+    public function signIn(SignInAbstractRequest $request) {
         return $this->authService->signIn($request);
     }
 
