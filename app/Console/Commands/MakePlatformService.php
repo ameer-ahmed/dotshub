@@ -485,7 +485,8 @@ PHP;
         $newEntry = "{$abstractFqn} => {$implArray},";
 
         // Pattern to find the version block in getServiceImplementations
-        $versionPattern = '/(private function getServiceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(            \],)/s';
+        // Use a more precise pattern that captures until the next version block or default case
+        $versionPattern = '/(private function getServiceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(\n            \],\n)/s';
 
         if (preg_match($versionPattern, $content, $matches)) {
             // Version block exists
@@ -598,7 +599,8 @@ PHP;
         $newEntry = "{$abstractFqn} => {$implArray},";
 
         // Pattern to find the version block in getRequestImplementations
-        $versionPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(            \],)/s';
+        // Use a more precise pattern that captures until the next version block or default case
+        $versionPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(\n            \],\n)/s';
 
         if (preg_match($versionPattern, $content, $matches)) {
             // Version block exists
