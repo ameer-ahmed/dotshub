@@ -15,7 +15,7 @@ class MakePlatformService extends Command
 {
     protected $signature = 'make:platform-service
         {name : Base name, e.g. Role}
-        {--actor=Merchant : Actor folder (e.g., User|Admin|Merchant|...)}
+        {--actor=System : Actor folder (e.g., User|Admin|Merchant|...)}
         {--domain=Role : Domain folder under Actor}
         {--api-version=1 : API version number}
         {--platform=web : Comma-separated: web,mobile (default: web)}

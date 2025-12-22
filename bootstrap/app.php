@@ -14,6 +14,8 @@ use Illuminate\Validation\ValidationException;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
@@ -28,9 +30,9 @@ return Application::configure(basePath: dirname(__DIR__))
                     Route::prefix('admin')
                         ->group(base_path('routes/api/v1/admin.php'));
 
-                    Route::prefix('merchant')
+                    Route::prefix('system')
                         ->middleware([InitializeTenancyByDomain::class, PreventAccessFromCentralDomains::class])
-                        ->group(base_path('routes/api/v1/merchant.php'));
+                        ->group(base_path('routes/api/v1/system.php'));
                 });
             });
         },
@@ -72,6 +74,34 @@ return Application::configure(basePath: dirname(__DIR__))
                 $errors = $e->validator->errors()->messages();
 
                 return Responser::fail(message: 'Validation error', data: $errors);
+            }
+
+            if ($e instanceof BadRequestHttpException) {
+                return Responser::fail(
+                    status: Response::HTTP_BAD_REQUEST,
+                    message: $e->getMessage()
+                );
+            }
+
+            if ($e instanceof HttpException) {
+                return Responser::fail(
+                    status: $e->getStatusCode(),
+                    message: $e->getMessage()
+                );
+            }
+
+            if ($e instanceof \InvalidArgumentException) {
+                return Responser::fail(
+                    status: Response::HTTP_BAD_REQUEST,
+                    message: $e->getMessage()
+                );
+            }
+
+            if ($e instanceof \RuntimeException) {
+                return Responser::fail(
+                    status: Response::HTTP_INTERNAL_SERVER_ERROR,
+                    message: $e->getMessage()
+                );
             }
 
             Log::error('ERROR_CATCH:', [

@@ -107,14 +107,14 @@ class PlatformServiceProvider extends ServiceProvider
     {
         return match ($version) {
             1 => [
-                \App\Http\Services\V1\Abstracts\Merchant\Role\RoleAbstractService::class => [
-                    \App\Http\Services\V1\Web\Merchant\Role\RoleService::class,
+                \App\Http\Services\V1\Abstracts\System\Role\RoleAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Role\RoleService::class,
                 ],
                 \App\Http\Services\V1\Abstracts\Admin\Auth\AuthAbstractService::class => [
                     \App\Http\Services\V1\Web\Admin\Auth\AuthService::class,
                 ],
-                \App\Http\Services\V1\Abstracts\Merchant\Auth\AuthAbstractService::class => [
-                    \App\Http\Services\V1\Web\Merchant\Auth\AuthService::class,
+                \App\Http\Services\V1\Abstracts\System\Auth\AuthAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Auth\AuthService::class,
                 ],
             ],
             // Add V2, V3, etc. here as you create them
@@ -135,14 +135,14 @@ class PlatformServiceProvider extends ServiceProvider
                 \App\Http\Requests\V1\Abstracts\Admin\Auth\SignUpAbstractRequest::class => [
                     \App\Http\Requests\V1\Web\Admin\Auth\SignUpRequest::class,
                 ],
-                \App\Http\Requests\V1\Abstracts\Merchant\Auth\SignInAbstractRequest::class => [
-                    \App\Http\Requests\V1\Web\Merchant\Auth\SignInRequest::class,
+                \App\Http\Requests\V1\Abstracts\System\Auth\SignInAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Auth\SignInRequest::class,
                 ],
-                \App\Http\Requests\V1\Abstracts\Merchant\Auth\SignUpAbstractRequest::class => [
-                    \App\Http\Requests\V1\Web\Merchant\Auth\SignUpRequest::class,
+                \App\Http\Requests\V1\Abstracts\System\Auth\SignUpAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Auth\SignUpRequest::class,
                 ],
-                \App\Http\Requests\V1\Abstracts\Merchant\Role\RoleAbstractRequest::class => [
-                    \App\Http\Requests\V1\Web\Merchant\Role\RoleRequest::class,
+                \App\Http\Requests\V1\Abstracts\System\Role\RoleAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Role\RoleRequest::class,
                 ],
             ],
             // Add V2, V3, etc. here as you create them

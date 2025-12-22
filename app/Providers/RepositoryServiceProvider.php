@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use App\Repository\Contracts\DomainRepositoryInterface;
-use App\Repository\Contracts\MerchantRepositoryInterface;
+use App\Repository\Contracts\TenantRepositoryInterface;
 use App\Repository\Contracts\RepositoryInterface;
 use App\Repository\Contracts\Tenant\RoleRepositoryInterface;
 use App\Repository\Contracts\Tenant\UserRepositoryInterface;
 use App\Repository\Eloquent\DomainRepository;
-use App\Repository\Eloquent\MerchantRepository;
+use App\Repository\Eloquent\TenantRepository;
 use App\Repository\Eloquent\Repository;
 use App\Repository\Eloquent\Tenant\RoleRepository;
 use App\Repository\Eloquent\Tenant\UserRepository;
@@ -27,7 +27,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->singleton(RepositoryInterface::class, Repository::class);
         $this->app->singleton(UserRepositoryInterface::class, UserRepository::class);
-        $this->app->singleton(MerchantRepositoryInterface::class, MerchantRepository::class);
+        $this->app->singleton(TenantRepositoryInterface::class, TenantRepository::class);
     }
 
     /**

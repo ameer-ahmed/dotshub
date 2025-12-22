@@ -19,7 +19,7 @@ return [
 //            'profiles' => 'r,u',
 //            'roles' => 'c,r,u,d',
 //        ],
-        'merchant_admin' => [
+        'system_admin' => [
             'users' => 'c,r,u,d',
             'products' => 'c,r,u,d',
             'orders' => 'c,r,u,d',
@@ -40,7 +40,7 @@ return [
 
     'not_editable_roles' => [
         'super_admin',
-        'merchant_admin',
+        'system_admin',
     ],
 
     'roles_translations' => [
@@ -54,10 +54,10 @@ return [
                 'en' => null
             ],
         ],
-        'merchant_admin' => [
+        'system_admin' => [
             'display_name' => [
-                'ar' => 'مدير حساب التاجر',
-                'en' => 'Merchant Administrator'
+                'ar' => 'مدير النظام',
+                'en' => 'System Administrator'
             ],
             'description' => [
                 'ar' => null,

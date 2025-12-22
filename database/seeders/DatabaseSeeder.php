@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Enums\MerchantStatus;
-use App\Models\Merchant;
+use App\Enums\SystemStatus;
+use App\Models\Tenant;
 use App\Models\Plan;
 use Illuminate\Database\Seeder;
 
@@ -23,20 +23,20 @@ class DatabaseSeeder extends Seeder
 //            MerchantSeeder::class,
         ]);
 
-//        $merchant1 = Merchant::query()->create([
+//        $merchant1 = System::query()->create([
 //            'name' => 'Merchant 1',
 //            'description' => 'Merchant 1 Description',
-//            'status' => MerchantStatus::ACTIVE,
+//            'status' => SystemStatus::ACTIVE,
 //        ]);
 //
 //        $merchant1->domains()->create([
 //            'domain' => 'm1.tracer.test'
 //        ]);
 //
-//        $merchant2 = Merchant::query()->create([
+//        $merchant2 = System::query()->create([
 //            'name' => 'Merchant 2',
 //            'description' => 'Merchant 2 Description',
-//            'status' => MerchantStatus::ACTIVE,
+//            'status' => SystemStatus::ACTIVE,
 //        ]);
 //
 //        $merchant2->domains()->create([
@@ -50,7 +50,7 @@ class DatabaseSeeder extends Seeder
 //           'merchant_id' => 1,
 //        ]);
 //
-//        $user->addRole('merchant_admin');
+//        $user->addRole('system_admin');
 //
 //        User::create([
 //            'name' => 'store',

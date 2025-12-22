@@ -7,7 +7,6 @@ services:
     container_name: dotshub-app
     restart: unless-stopped
     working_dir: /var/www/html
-    user: "${UID:-1000}:${GID:-1000}"
     volumes:
       - ./:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
@@ -73,7 +72,7 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      PMA_USER: ${DB_USERNAME:-dotshub}
+      PMA_USER: ${DB_USERNAME:-root}
       PMA_PASSWORD: ${DB_PASSWORD:-secret}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
     networks:

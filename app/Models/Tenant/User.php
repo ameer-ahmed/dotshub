@@ -2,7 +2,7 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Merchant;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -24,7 +24,6 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'status',
-        'merchant_id'
     ];
 
     /**
@@ -60,8 +59,10 @@ class User extends Authenticatable implements JWTSubject
         return JWTAuth::fromUser($this);
     }
 
-    public function merchant()
+    protected function tenant(): Attribute
     {
-        return $this->belongsTo(Merchant::class);
+        return Attribute::make(
+            get: fn () => tenancy()->tenant,
+        );
     }
 }

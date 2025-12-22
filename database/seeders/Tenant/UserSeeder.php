@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             'password' => '123123',
         ]);
 
-        $user->addRole('merchant_admin');
+        $user->addRole('system_admin');
 
         User::create([
             'name' => 'store',

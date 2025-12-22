@@ -2,7 +2,7 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Merchant;
+use App\Models\Tenant;
 use Laratrust\Models\Role as RoleModel;
 use Spatie\Translatable\HasTranslations;
 
