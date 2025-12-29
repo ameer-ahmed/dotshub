@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Repository\Eloquent\Tenant\SettingRepository;
+use App\Repository\Contracts\Tenant\SettingRepositoryInterface;
+use App\Repository\Eloquent\Tenant\BranchRepository;
+use App\Repository\Contracts\Tenant\BranchRepositoryInterface;
 use App\Repository\Contracts\DomainRepositoryInterface;
 use App\Repository\Contracts\TenantRepositoryInterface;
 use App\Repository\Contracts\RepositoryInterface;
@@ -23,6 +27,8 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        $this->app->singleton(SettingRepositoryInterface::class, SettingRepository::class);
+        $this->app->singleton(BranchRepositoryInterface::class, BranchRepository::class);
         $this->app->singleton(DomainRepositoryInterface::class, DomainRepository::class);
         $this->app->singleton(RoleRepositoryInterface::class, RoleRepository::class);
         $this->app->singleton(RepositoryInterface::class, Repository::class);

@@ -1,25 +1,35 @@
 services:
   # PHP Service
-  app:
+  gateway:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dotshub-app
+      args:
+        USER_ID: 1000
+        GROUP_ID: 1000
+    container_name: v6-gateway
     restart: unless-stopped
     working_dir: /var/www/html
+    user: "1000:1000"
     volumes:
       - ./:/var/www/html
       - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
     networks:
-      - dotshub
-    depends_on:
-      - db
-      - redis
+      - v6-network
+    environment:
+      - DB_HOST=db
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-v6}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - KAFKA_BROKERS=kafka:9092
 
   # Nginx Service
   webserver:
     image: nginx:alpine
-    container_name: dotshub-webserver
+    container_name: v6-gateway-webserver
     restart: unless-stopped
     ports:
       - "8000:80"
@@ -28,65 +38,12 @@ services:
       - ./:/var/www/html
       - ./docker/nginx/conf.d:/etc/nginx/conf.d
     networks:
-      - dotshub
+      - v6-network
     depends_on:
-      - app
+      - gateway
 
-  # MySQL Service
-  db:
-    image: mysql:8.0
-    container_name: dotshub-db
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-v6}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_USER: ${DB_USERNAME:-dotshub}
-      SERVICE_TAGS: dev
-      SERVICE_NAME: mysql
-    volumes:
-      - dbdata:/var/lib/mysql
-      - ./docker/mysql/init-privileges.sql:/docker-entrypoint-initdb.d/init-privileges.sql
-    ports:
-      - "3307:3306"
-    networks:
-      - dotshub
-
-  # Redis Service
-  redis:
-    image: redis:alpine
-    container_name: dotshub-redis
-    restart: unless-stopped
-    ports:
-      - "6380:6379"
-    networks:
-      - dotshub
-
-  # phpMyAdmin Service
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: dotshub-phpmyadmin
-    restart: unless-stopped
-    ports:
-      - "8080:80"
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_USER: ${DB_USERNAME:-root}
-      PMA_PASSWORD: ${DB_PASSWORD:-secret}
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-secret}
-    networks:
-      - dotshub
-    depends_on:
-      - db
-
-
-# Docker Networks
+# Use the shared network created by infrastructure
 networks:
-  dotshub:
-    driver: bridge
-
-# Volumes
-volumes:
-  dbdata:
-    driver: local
+  v6-network:
+    external: true
+    name: v6-network

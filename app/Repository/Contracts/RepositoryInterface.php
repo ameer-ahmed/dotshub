@@ -15,8 +15,8 @@ interface RepositoryInterface
         array $relations = [],
         QueryReturnType $returnType = QueryReturnType::GET,
         int $perPage = 10,
-        string $orderBy = 'ASC',
-        string $orderColumn = 'id'
+        string $order = 'DESC',
+        string $orderBy = 'id'
     );
 
     public function getAll(array $columns = ['*'], array $relations = []): Collection;

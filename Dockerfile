@@ -1,5 +1,9 @@
 FROM php:8.5-fpm
 
+# Arguments for user ID and group ID
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+
 # Set working directory
 WORKDIR /var/www/html
 
@@ -20,6 +24,7 @@ RUN apt-get update && apt-get install -y \
     libjpeg62-turbo-dev \
     libwebp-dev \
     supervisor \
+    librdkafka-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions - install in groups to avoid conflicts
@@ -41,6 +46,9 @@ RUN docker-php-ext-install intl
 # Install Redis extension (use latest stable version for PHP 8.5 compatibility)
 RUN pecl install redis && docker-php-ext-enable redis
 
+# Install rdkafka extension for Kafka support
+RUN pecl install rdkafka && docker-php-ext-enable rdkafka
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -49,12 +57,22 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
+# Create user and group with matching host UID/GID
+RUN groupadd -g ${GROUP_ID} appuser && \
+    useradd -u ${USER_ID} -g appuser -m -s /bin/bash appuser
+
 # Copy supervisor configuration
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
+
+# Change ownership of working directory
+RUN chown -R appuser:appuser /var/www/html
+
+# Switch to non-root user
+USER appuser
 
 # Expose port 9000 for PHP-FPM
 EXPOSE 9000

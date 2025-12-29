@@ -3,6 +3,7 @@
 namespace App\Http\Services\V1\Abstracts\System\Auth;
 
 use App\Http\Helpers\Responser;
+use App\Http\Requests\V1\Abstracts\System\Auth\SignUpAbstractRequest;
 use App\Http\Requests\V1\Web\System\Auth\SignInRequest;
 use App\Http\Requests\V1\Web\System\Auth\SignUpRequest;
 use App\Http\Resources\V1\Web\System\User\UserResource;
@@ -28,7 +29,7 @@ abstract class AuthAbstractService extends PlatformService
     /**
      * @throws \Throwable
      */
-    public function signUp(SignUpRequest $request)
+    public function signUp(SignUpAbstractRequest $request)
     {
         $data = $request->validated();
         $tenant = null;

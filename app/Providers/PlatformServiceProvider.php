@@ -69,6 +69,7 @@ class PlatformServiceProvider extends ServiceProvider
     {
         $this->bindServices();
         $this->bindRequests();
+        $this->bindResources();
     }
 
     private function bindServices(): void
@@ -103,6 +104,22 @@ class PlatformServiceProvider extends ServiceProvider
         }
     }
 
+    private function bindResources(): void
+    {
+        $resourceBindings = $this->getResourceImplementations($this->version);
+
+        foreach ($resourceBindings as $abstract => $implementations) {
+            $this->app->bind($abstract, function ($app, $parameters) use ($implementations, $abstract) {
+                foreach ($implementations as $implementation) {
+                    if ($implementation::platform() === $this->platform) {
+                        return $app->make($implementation, $parameters);
+                    }
+                }
+                throw new \RuntimeException("No resource implementation found for {$abstract} with platform {$this->platform->value}");
+            });
+        }
+    }
+
     private function getServiceImplementations(int $version): array
     {
         return match ($version) {
@@ -115,7 +132,15 @@ class PlatformServiceProvider extends ServiceProvider
                 ],
                 \App\Http\Services\V1\Abstracts\System\Auth\AuthAbstractService::class => [
                     \App\Http\Services\V1\Web\System\Auth\AuthService::class,
+                ],                \App\Http\Services\V1\Abstracts\System\Branch\BranchAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Branch\BranchService::class,
+                    \App\Http\Services\V1\Mobile\System\Branch\BranchService::class,
                 ],
+                \App\Http\Services\V1\Abstracts\System\Settings\SettingAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Settings\SettingService::class,
+                    \App\Http\Services\V1\Mobile\System\Settings\SettingService::class,
+                ],
+
             ],
             // Add V2, V3, etc. here as you create them
             // 2 => [
@@ -143,11 +168,40 @@ class PlatformServiceProvider extends ServiceProvider
                 ],
                 \App\Http\Requests\V1\Abstracts\System\Role\RoleAbstractRequest::class => [
                     \App\Http\Requests\V1\Web\System\Role\RoleRequest::class,
+                ],                \App\Http\Requests\V1\Abstracts\System\Branch\BranchAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Branch\BranchRequest::class,
+                    \App\Http\Requests\V1\Mobile\System\Branch\BranchRequest::class,
                 ],
+                \App\Http\Requests\V1\Abstracts\System\Settings\SettingAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Settings\SettingRequest::class,
+                    \App\Http\Requests\V1\Mobile\System\Settings\SettingRequest::class,
+                ],
+
             ],
             // Add V2, V3, etc. here as you create them
             // 2 => [
             //     \App\Http\Requests\V2\Abstracts\... => [...],
+            // ],
+            default => [],
+        };
+    }
+
+    private function getResourceImplementations(int $version): array
+    {
+        return match ($version) {
+            1 => [
+                \App\Http\Resources\V1\Abstracts\System\Branch\BranchAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\Branch\BranchResource::class,
+                    \App\Http\Resources\V1\Mobile\System\Branch\BranchResource::class,
+                ],
+                \App\Http\Resources\V1\Abstracts\System\Settings\SettingAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\Settings\SettingResource::class,
+                    \App\Http\Resources\V1\Mobile\System\Settings\SettingResource::class,
+                ],
+            ],
+            // Add V2, V3, etc. here as you create them
+            // 2 => [
+            //     \App\Http\Resources\V2\Abstracts\... => [...],
             // ],
             default => [],
         };

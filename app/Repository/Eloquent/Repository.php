@@ -60,14 +60,14 @@ abstract class Repository implements RepositoryInterface
      * // No scopes, just get all
      * $repository->query();
      */
-    public function query(
+    public function     query(
         array $scopes = [],
         array $columns = ['*'],
         array $relations = [],
         QueryReturnType $returnType = QueryReturnType::GET,
         int $perPage = 10,
-        string $orderBy = 'ASC',
-        string $orderColumn = 'id'
+        string $order = 'DESC',
+        string $orderBy = 'id'
     ) {
         $query = $this->model::query()->select($columns)->with($relations);
 
@@ -87,7 +87,7 @@ abstract class Repository implements RepositoryInterface
         }
 
         // Apply ordering
-        $query = $query->orderBy($orderColumn, $orderBy);
+        $query = $query->orderBy($orderBy, $order);
 
         // Return based on the return type using match
         return match ($returnType) {

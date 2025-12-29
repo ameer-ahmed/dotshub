@@ -118,6 +118,21 @@ class MakePlatformService extends Command
             $this->info("Created: {$controllerPath}");
         }
 
+        // === 3) Abstract resource ===
+        $abstractResourceNs = '';
+        $abstractResourceCls = '';
+        $concreteResources = [];
+        if ($makeRes) {
+            $abstractResourceNs  = "App\\Http\\Resources\\V{$version}\\Abstracts\\{$actor}\\{$domain}";
+            $abstractResourceDir = app_path("Http/Resources/V{$version}/Abstracts/{$actor}/{$domain}");
+            $abstractResourceCls = "{$name}AbstractResource";
+            $abstractResourcePath = "{$abstractResourceDir}/{$abstractResourceCls}.php";
+
+            $this->makeDirectory($abstractResourceDir);
+            $this->writeFile($abstractResourcePath, $this->renderAbstractResource($abstractResourceNs, $abstractResourceCls));
+            $this->info("Created: {$abstractResourcePath}");
+        }
+
         // === 4) Per-platform services (+ request / resource) ===
         $concretes = [];
         $concreteRequests = [];
@@ -172,8 +187,15 @@ class MakePlatformService extends Command
                 $resourcePath = "{$resourceDir}/{$resourceCls}.php";
 
                 $this->makeDirectory($resourceDir);
-                $this->writeFile($resourcePath, $this->renderResource($resourceNs, $resourceCls));
+                $this->writeFile($resourcePath, $this->renderResource(
+                    $resourceNs,
+                    $resourceCls,
+                    $abstractResourceNs,
+                    $abstractResourceCls,
+                    $platformEnumCase
+                ));
                 $this->info("Created: {$resourcePath}");
+                $concreteResources[] = "\\{$resourceNs}\\{$resourceCls}::class";
             }
         }
 
@@ -224,6 +246,11 @@ class MakePlatformService extends Command
         if ($makeReq && !empty($concreteRequests)) {
             $abstractRequestFqn = "\\{$abstractRequestNs}\\{$abstractRequestCls}::class";
             $this->registerRequestInPlatformServiceProvider($abstractRequestFqn, $concreteRequests);
+        }
+
+        if ($makeRes && !empty($concreteResources)) {
+            $abstractResourceFqn = "\\{$abstractResourceNs}\\{$abstractResourceCls}::class";
+            $this->registerResourceInPlatformServiceProvider($abstractResourceFqn, $concreteResources);
         }
 
         $this->info('All set ✅');
@@ -378,17 +405,46 @@ class {$class} extends {$abstractClass}
 PHP;
     }
 
-    private function renderResource(string $namespace, string $class): string
+    private function renderAbstractResource(string $namespace, string $class): string
     {
         return <<<PHP
 <?php
 
 namespace {$namespace};
 
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Http\Resources\PlatformResource;
 
-class {$class} extends JsonResource
+abstract class {$class} extends PlatformResource
 {
+    // Concrete implementations (Web/Mobile) will implement platform() method
+    // and define their own toArray() method
+}
+
+PHP;
+    }
+
+    private function renderResource(
+        string $namespace,
+        string $class,
+        string $abstractNamespace,
+        string $abstractClass,
+        string $platformEnumCase
+    ): string {
+        return <<<PHP
+<?php
+
+namespace {$namespace};
+
+use App\Enums\Platform;
+use {$abstractNamespace}\\{$abstractClass};
+
+class {$class} extends {$abstractClass}
+{
+    public static function platform(): Platform
+    {
+        return Platform::{$platformEnumCase};
+    }
+
     public function toArray(\$request): array
     {
         return [
@@ -642,5 +698,71 @@ PHP;
 
         $this->files->put($providerPath, $content);
         $this->info('PlatformServiceProvider updated (requests).');
+    }
+
+    private function registerResourceInPlatformServiceProvider(string $abstractFqn, array $concretes): void
+    {
+        $providerPath = app_path('Providers/PlatformServiceProvider.php');
+        if (!$this->files->exists($providerPath)) {
+            $this->error('PlatformServiceProvider.php not found. Skipping resource registration.');
+            return;
+        }
+
+        $content = $this->files->get($providerPath);
+
+        // Extract version from abstractFqn (e.g., \App\Http\Resources\V1\...)
+        preg_match('/\\\\V(\d+)\\\\/', $abstractFqn, $matches);
+        $version = $matches[1] ?? '1';
+
+        // Build the implementation array with proper formatting (each on new line)
+        $uniqueConcretes = collect($concretes)->unique()->values()->all();
+        $implLines = array_map(fn($impl) => "                    {$impl},", $uniqueConcretes);
+        $implArray = "[\n" . implode("\n", $implLines) . "\n                ]";
+
+        $newEntry = "{$abstractFqn} => {$implArray},";
+
+        // Pattern to find the version block in getResourceImplementations
+        $versionPattern = '/(private function getResourceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(\n            \],\n)/s';
+
+        if (preg_match($versionPattern, $content, $matches)) {
+            // Version block exists
+            $existingBindings = $matches[2];
+
+            // Check if abstract already exists
+            if (preg_match('/'.preg_quote($abstractFqn, '/').' => \[.*?\],/s', $existingBindings)) {
+                // Update existing entry
+                $content = preg_replace(
+                    '/(private function getResourceImplementations.*?' . $version . ' => \[.*?)'.preg_quote($abstractFqn, '/').' => \[.*?\],/s',
+                    "$1{$newEntry}",
+                    $content,
+                    1
+                );
+            } else {
+                // Add new entry before the closing bracket
+                $replacement = "$1$2                {$newEntry}\n$3";
+                $content = preg_replace($versionPattern, $replacement, $content, 1);
+            }
+        } else {
+            // Version block doesn't exist - create it
+            $newVersionBlock = "            {$version} => [\n                {$newEntry}\n            ],\n";
+
+            // Insert before the default block (most reliable anchor point)
+            $insertPattern = '/(private function getResourceImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?)(            default => \[\],)/s';
+
+            if (preg_match($insertPattern, $content)) {
+                $content = preg_replace(
+                    $insertPattern,
+                    "$1{$newVersionBlock}$2",
+                    $content,
+                    1
+                );
+                $this->info("Created new version {$version} block in getResourceImplementations.");
+            } else {
+                $this->warn("Could not automatically add version {$version} block. Please add it manually to getResourceImplementations().");
+            }
+        }
+
+        $this->files->put($providerPath, $content);
+        $this->info('PlatformServiceProvider updated (resources).');
     }
 }

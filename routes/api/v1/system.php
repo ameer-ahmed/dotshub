@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\V1\System\Auth\AuthController;
+use App\Http\Controllers\V1\System\Branch\BranchController;
 use App\Http\Controllers\V1\System\Role\RoleController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -22,4 +23,6 @@ Route::group(['middleware' => 'auth:user'], function () {
         Route::put('{id}', 'update');
         Route::delete('{id}', 'delete');
     });
+
+    Route::apiResource('branches', BranchController::class);
 });
