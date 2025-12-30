@@ -24,5 +24,12 @@ Route::group(['middleware' => 'auth:user'], function () {
         Route::delete('{id}', 'delete');
     });
 
-    Route::apiResource('branches', BranchController::class);
+    Route::group(['prefix' => 'branches', 'controller' => BranchController::class], function () {
+        Route::get('/', 'index');
+        Route::get('*', 'getAll');
+        Route::get('{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('{id}', 'update');
+        Route::delete('{id}', 'destroy');
+    });
 });

@@ -14,9 +14,6 @@ class BranchResource extends BranchAbstractResource
 
     public function toArray($request): array
     {
-        return [
-            'id' => $this->id,
-            // TODO: map fields
-        ];
+        return parent::toArray($request);
     }
 }

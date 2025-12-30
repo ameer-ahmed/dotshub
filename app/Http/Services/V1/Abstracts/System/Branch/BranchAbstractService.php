@@ -8,7 +8,8 @@ use App\Http\Requests\V1\Abstracts\System\Branch\BranchAbstractRequest;
 use App\Http\Resources\V1\Abstracts\System\Branch\BranchAbstractResource;
 use App\Http\Services\PlatformService;
 use App\Repository\Contracts\Tenant\BranchRepositoryInterface;
-use Illuminate\Http\Request;
+use Exception;
+use Symfony\Component\HttpFoundation\Response;
 
 abstract class BranchAbstractService extends PlatformService
 {
@@ -24,7 +25,7 @@ abstract class BranchAbstractService extends PlatformService
             returnType: QueryReturnType::PAGINATE
         );
 
-        return Responser::success(data: BranchAbstractResource::collection($branches)->response()->getData());
+        return Responser::success(message: __('Retrieved successfully'), data: BranchAbstractResource::collection($branches)->response()->getData());
     }
 
     public function getAll()
@@ -33,21 +34,48 @@ abstract class BranchAbstractService extends PlatformService
             returnType: QueryReturnType::GET
         );
 
+        return Responser::success(message: __('Retrieved successfully'), data: BranchAbstractResource::collection($branches));
+    }
 
+    public function show($id)
+    {
+        $branch = $this->branchRepository->getById($id);
+
+        return Responser::success(message: __('Retrieved successfully'), data: BranchAbstractResource::make($branch));
     }
 
     public function store(BranchAbstractRequest $request)
     {
+        try {
+            $data = $request->validated();
+            $branch = $this->branchRepository->create($data);
 
+            return Responser::success(message: __('Created successfully'), data: BranchAbstractResource::make($branch));
+        } catch (Exception $e) {
+            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
+        }
     }
 
     public function update(BranchAbstractRequest $request, $id)
     {
+        try {
+            $data = $request->validated();
+            $branch = $this->branchRepository->update($id, $data);
 
+            return Responser::success(message: __('Updated successfully'), data: BranchAbstractResource::make($branch));
+        } catch (Exception $e) {
+            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
+        }
     }
 
     public function destroy($id)
     {
+        try {
+            $this->branchRepository->delete($id);
 
+            return Responser::success(message: __('Deleted successfully'));
+        } catch (Exception $e) {
+            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
+        }
     }
 }

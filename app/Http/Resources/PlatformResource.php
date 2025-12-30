@@ -14,6 +14,17 @@ abstract class PlatformResource extends JsonResource
     abstract public static function platform(): Platform;
 
     /**
+     * Override make to resolve concrete class from container.
+     *
+     * This allows abstract resources to automatically resolve to the correct
+     * platform-specific implementation (Web/Mobile) based on container bindings.
+     */
+    public static function make(...$parameters)
+    {
+        return app(static::class, ['resource' => $parameters[0] ?? null]);
+    }
+
+    /**
      * Override newCollection to resolve concrete class from container.
      *
      * This allows abstract resources to automatically resolve to the correct

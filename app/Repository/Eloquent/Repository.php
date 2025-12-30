@@ -93,7 +93,7 @@ abstract class Repository implements RepositoryInterface
         return match ($returnType) {
             QueryReturnType::GET => $query->get(),
             QueryReturnType::FIRST => $query->first(),
-            QueryReturnType::PAGINATE => $query->paginate($perPage),
+            QueryReturnType::PAGINATE => $query->paginate(request('per_page', $perPage)),
             QueryReturnType::QUERY => $query,
         };
     }
@@ -191,7 +191,7 @@ abstract class Repository implements RepositoryInterface
 
     public function paginate(int $perPage = 10, array $relations = [], $orderBy = 'ASC', $columns = ['*'])
     {
-        return $this->model::query()->select($columns)->with($relations)->orderBy('id', $orderBy)->paginate($perPage);
+        return $this->model::query()->select($columns)->with($relations)->orderBy('id', $orderBy)->paginate(request('per_page', $perPage));
     }
 
     public function paginateWithQuery(
@@ -201,7 +201,7 @@ abstract class Repository implements RepositoryInterface
         $orderBy = 'ASC',
         $columns = ['*'],
     ) {
-        return  $this->model::query()->select($columns)->where($query)->with($relations)->orderBy('id', $orderBy)->paginate($perPage);
+        return  $this->model::query()->select($columns)->where($query)->with($relations)->orderBy('id', $orderBy)->paginate(request('per_page', $perPage));
     }
 
 

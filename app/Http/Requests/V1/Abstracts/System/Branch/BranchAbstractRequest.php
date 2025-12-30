@@ -14,7 +14,8 @@ abstract class BranchAbstractRequest extends PlatformRequest
     public function rules(): array
     {
         return [
-            // TODO: Add validation rules
+            'name' => ['required', 'string'],
+            'location' => ['required', 'string']
         ];
     }
 }

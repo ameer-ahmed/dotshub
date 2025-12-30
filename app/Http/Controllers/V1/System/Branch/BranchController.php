@@ -17,18 +17,28 @@ class BranchController extends Controller
         return $this->branchAbstractService->index();
     }
 
+    public function getAll()
+    {
+        return $this->branchAbstractService->getAll();
+    }
+
+    public function show($id)
+    {
+        return $this->branchAbstractService->show($id);
+    }
+
     public function store(BranchAbstractRequest $request)
     {
-
+        return $this->branchAbstractService->store($request);
     }
 
     public function update(BranchAbstractRequest $request, $id)
     {
-
+        return $this->branchAbstractService->update($request, $id);
     }
 
     public function destroy($id)
     {
-
+        return $this->branchAbstractService->destroy($id);
     }
 }

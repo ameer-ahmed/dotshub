@@ -1,0 +1,910 @@
+{
+	"info": {
+		"_postman_id": "v6-gateway-api-collection",
+		"name": "V6 Gateway API",
+		"description": "Comprehensive API collection for V6 Gateway System with multi-tenancy support.\n\n## Features\n- Multi-tenant architecture with domain-based isolation\n- Platform-specific resources (Web/Mobile)\n- JWT authentication\n- Automatic token management\n\n## Getting Started\n1. Import the environment file: `postman_environment.json`\n2. Update `tenant_domain` in environment to your tenant subdomain\n3. Run the Sign In request to get an access token\n4. The token will be automatically saved and used in subsequent requests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global pre-request script",
+					"// Add any global setup here"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Global test script",
+					"pm.test('Response time is less than 2000ms', function () {",
+					"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+					"});",
+					"",
+					"pm.test('Response has correct content type', function () {",
+					"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+					"});"
+				]
+			}
+		}
+	],
+	"item": [
+		{
+			"name": "System API (Tenant)",
+			"description": "Tenant-specific system endpoints. Requires tenant domain and authentication.",
+			"item": [
+				{
+					"name": "Authentication",
+					"description": "User authentication endpoints for sign up, sign in, and sign out",
+					"item": [
+						{
+							"name": "Sign Up",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Sign up successful', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('name');",
+											"        pm.expect(jsonData.data).to.have.property('email');",
+											"    });",
+											"    ",
+											"    // Save tenant info if available",
+											"    if (jsonData.data && jsonData.data.tenant) {",
+											"        pm.environment.set('tenant_id', jsonData.data.tenant.id);",
+											"        console.log('Tenant created:', jsonData.data.tenant.name);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"Pass@123\",\n    \"tenant_name\": \"Acme Corporation\",\n    \"tenant_description\": \"Acme Corporation is a leading provider of innovative solutions in the technology sector, specializing in enterprise software development and cloud infrastructure services.\",\n    \"tenant_subdomain\": \"acme\"\n}"
+								},
+								"url": {
+									"raw": "http://{{base_url}}/api/{{api_version}}/system/auth/sign/up",
+									"protocol": "http",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"auth",
+										"sign",
+										"up"
+									]
+								},
+								"description": "Register a new user and create a tenant. This endpoint does not require authentication or tenancy middleware."
+							},
+							"response": []
+						},
+						{
+							"name": "Sign In",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Login successful', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('token');",
+											"        pm.expect(jsonData.data).to.have.property('name');",
+											"        pm.expect(jsonData.data).to.have.property('email');",
+											"    });",
+											"    ",
+											"    // Save the access token",
+											"    if (jsonData.data && jsonData.data.token) {",
+											"        pm.environment.set('access_token', jsonData.data.token);",
+											"        console.log('Access token saved');",
+											"    }",
+											"    ",
+											"    // Save tenant info if available",
+											"    if (jsonData.data && jsonData.data.tenant) {",
+											"        pm.environment.set('tenant_id', jsonData.data.tenant.id);",
+											"    }",
+											"} else {",
+											"    pm.test('Login failed - check credentials', function () {",
+											"        pm.expect.fail('Login request failed with status ' + pm.response.code);",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"Pass@123\"\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/auth/sign/in",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"auth",
+										"sign",
+										"in"
+									]
+								},
+								"description": "Authenticate a user and receive a JWT access token. The token is automatically saved to the environment."
+							},
+							"response": []
+						},
+						{
+							"name": "Sign Out",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    pm.test('Logout successful', function () {",
+											"        pm.expect(pm.response.json()).to.have.property('message');",
+											"    });",
+											"    ",
+											"    // Clear the access token",
+											"    pm.environment.set('access_token', '');",
+											"    console.log('Access token cleared');",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/auth/sign/out",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"auth",
+										"sign",
+										"out"
+									]
+								},
+								"description": "Sign out the authenticated user and invalidate the JWT token."
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Branches",
+					"description": "Branch management endpoints for CRUD operations",
+					"item": [
+						{
+							"name": "List Branches (Paginated)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Branches list retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    pm.test('Pagination data exists', function () {",
+											"        pm.expect(jsonData.data).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('current_page');",
+											"        pm.expect(jsonData.data).to.have.property('total');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches?page=1&per_page=15",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number"
+										},
+										{
+											"key": "per_page",
+											"value": "15",
+											"description": "Items per page"
+										}
+									]
+								},
+								"description": "Get a paginated list of branches"
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Branches",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('All branches retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.be.an('array');",
+											"    });",
+											"    ",
+											"    // Save first branch ID for testing",
+											"    if (jsonData.data && jsonData.data.length > 0) {",
+											"        pm.environment.set('branch_id', jsonData.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/*",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches",
+										"*"
+									]
+								},
+								"description": "Get all branches without pagination"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Branch by ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Branch retrieved successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('id');",
+											"        pm.expect(jsonData.data).to.have.property('name');",
+											"        pm.expect(jsonData.data).to.have.property('location');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches",
+										"{{branch_id}}"
+									]
+								},
+								"description": "Get a specific branch by ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Branch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Branch created successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    // Save the new branch ID",
+											"    if (jsonData.data && jsonData.data.id) {",
+											"        pm.environment.set('branch_id', jsonData.data.id);",
+											"        console.log('New branch ID saved:', jsonData.data.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Main Branch\",\n    \"location\": \"123 Main St, City, Country\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"main@example.com\"\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches"
+									]
+								},
+								"description": "Create a new branch"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Branch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Branch updated successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Main Branch - Updated\",\n    \"location\": \"456 New St, City, Country\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"main.updated@example.com\"\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches",
+										"{{branch_id}}"
+									]
+								},
+								"description": "Update an existing branch"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Branch",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 204) {",
+											"    pm.test('Branch deleted successfully', function () {",
+											"        pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"branches",
+										"{{branch_id}}"
+									]
+								},
+								"description": "Delete a branch by ID"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Roles",
+					"description": "Role management endpoints for CRUD operations",
+					"item": [
+						{
+							"name": "List Roles",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Roles list retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    // Save first role ID for testing",
+											"    if (jsonData.data && jsonData.data.length > 0) {",
+											"        pm.environment.set('role_id', jsonData.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"roles"
+									]
+								},
+								"description": "Get a list of all roles"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Role",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Role created successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    // Save the new role ID",
+											"    if (jsonData.data && jsonData.data.id) {",
+											"        pm.environment.set('role_id', jsonData.data.id);",
+											"        console.log('New role ID saved:', jsonData.data.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Manager\",\n    \"display_name\": \"Branch Manager\",\n    \"description\": \"Manages branch operations and staff\",\n    \"permissions\": [\n        \"users.view\",\n        \"users.create\",\n        \"branches.view\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"roles"
+									]
+								},
+								"description": "Create a new role with permissions"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Role",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Role updated successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Manager\",\n    \"display_name\": \"Senior Manager\",\n    \"description\": \"Manages branch operations, staff, and reports\",\n    \"permissions\": [\n        \"users.view\",\n        \"users.create\",\n        \"users.edit\",\n        \"branches.view\",\n        \"reports.view\"\n    ]\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles/{{role_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"roles",
+										"{{role_id}}"
+									]
+								},
+								"description": "Update an existing role"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Role",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 204) {",
+											"    pm.test('Role deleted successfully', function () {",
+											"        pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles/{{role_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"roles",
+										"{{role_id}}"
+									]
+								},
+								"description": "Delete a role by ID"
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin API (Central)",
+			"description": "Central admin endpoints (non-tenant specific)",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://{{base_url}}/api/{{api_version}}/admin",
+							"protocol": "http",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"{{api_version}}",
+								"admin"
+							]
+						},
+						"description": "Simple health check endpoint for the admin API"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "collection_version",
+			"value": "1.0.0",
+			"type": "string"
+		}
+	]
+}
