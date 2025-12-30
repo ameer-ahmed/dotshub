@@ -416,8 +416,13 @@ use App\Http\Resources\PlatformResource;
 
 abstract class {$class} extends PlatformResource
 {
-    // Concrete implementations (Web/Mobile) will implement platform() method
-    // and define their own toArray() method
+    public function toArray(\$request): array
+    {
+        return [
+            'id' => \$this->id,
+            // TODO: add more fields
+        ];
+    }
 }
 
 PHP;
@@ -447,10 +452,7 @@ class {$class} extends {$abstractClass}
 
     public function toArray(\$request): array
     {
-        return [
-            'id' => \$this->id,
-            // TODO: map fields
-        ];
+        return parent::toArray(\$request);
     }
 }
 
