@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('key');
             $table->text('value')->nullable();
-            $table->string('group')->default('general');
             $table->enum('type', ['integer', 'string', 'json', 'boolean']);
+            $table->string('group')->default('general');
             $table->timestamps();
         });
     }

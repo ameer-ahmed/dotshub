@@ -3,6 +3,7 @@
 use App\Http\Controllers\V1\System\Auth\AuthController;
 use App\Http\Controllers\V1\System\Branch\BranchController;
 use App\Http\Controllers\V1\System\Role\RoleController;
+use App\Http\Controllers\V1\System\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
@@ -31,5 +32,10 @@ Route::group(['middleware' => 'auth:user'], function () {
         Route::post('/', 'store');
         Route::put('{id}', 'update');
         Route::delete('{id}', 'destroy');
+    });
+
+    Route::group(['prefix' => 'settings', 'controller' => SettingController::class], function () {
+        Route::get('/', 'index');
+        Route::put('/{id}', 'update');
     });
 });

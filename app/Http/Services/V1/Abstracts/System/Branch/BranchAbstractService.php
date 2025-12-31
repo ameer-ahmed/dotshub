@@ -46,36 +46,24 @@ abstract class BranchAbstractService extends PlatformService
 
     public function store(BranchAbstractRequest $request)
     {
-        try {
-            $data = $request->validated();
-            $branch = $this->branchRepository->create($data);
+        $data = $request->validated();
+        $branch = $this->branchRepository->create($data);
 
-            return Responser::success(message: __('Created successfully'), data: BranchAbstractResource::make($branch));
-        } catch (Exception $e) {
-            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
-        }
+        return Responser::success(message: __('Created successfully'), data: BranchAbstractResource::make($branch));
     }
 
     public function update(BranchAbstractRequest $request, $id)
     {
-        try {
-            $data = $request->validated();
-            $branch = $this->branchRepository->update($id, $data);
+        $data = $request->validated();
+        $branch = $this->branchRepository->update($id, $data);
 
-            return Responser::success(message: __('Updated successfully'), data: BranchAbstractResource::make($branch));
-        } catch (Exception $e) {
-            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
-        }
+        return Responser::success(message: __('Updated successfully'), data: BranchAbstractResource::make($branch));
     }
 
     public function destroy($id)
     {
-        try {
-            $this->branchRepository->delete($id);
+        $this->branchRepository->delete($id);
 
-            return Responser::success(message: __('Deleted successfully'));
-        } catch (Exception $e) {
-            return Responser::fail(status: Response::HTTP_BAD_REQUEST, message: __('Something went wrong'), throwable: $e);
-        }
+        return Responser::success(message: __('Deleted successfully'));
     }
 }

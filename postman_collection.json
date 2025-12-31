@@ -860,6 +860,127 @@
 							"response": []
 						}
 					]
+				},
+				{
+					"name": "Settings",
+					"description": "Settings management endpoints for tenant configuration",
+					"item": [
+						{
+							"name": "List Settings",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Settings list retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    // Save first setting ID for testing",
+											"    if (jsonData.data && jsonData.data.length > 0) {",
+											"        pm.environment.set('setting_id', jsonData.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/settings",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"settings"
+									]
+								},
+								"description": "Get a list of all settings"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Setting",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Setting updated successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"key\": \"app_name\",\n    \"value\": \"My Application\",\n    \"description\": \"Application display name\"\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/settings/{{setting_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"settings",
+										"{{setting_id}}"
+									]
+								},
+								"description": "Update an existing setting"
+							},
+							"response": []
+						}
+					]
 				}
 			]
 		},

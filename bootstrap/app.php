@@ -50,6 +50,14 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
         $exceptions->render(function (Throwable $e, Request $request) {
+            Log::error('ERROR_CATCH:', [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTrace()
+            ]);
+
             if ($e instanceof TokenExpiredException) {
                 return Responser::fail(status: Response::HTTP_UNAUTHORIZED, message: 'Token expired');
             }
@@ -90,26 +98,25 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
 
-            if ($e instanceof \InvalidArgumentException) {
+            if ($e instanceof InvalidArgumentException) {
                 return Responser::fail(
                     status: Response::HTTP_BAD_REQUEST,
                     message: $e->getMessage()
                 );
             }
 
-            if ($e instanceof \RuntimeException) {
+            if ($e instanceof RuntimeException) {
                 return Responser::fail(
                     status: Response::HTTP_INTERNAL_SERVER_ERROR,
                     message: $e->getMessage()
                 );
             }
 
-            Log::error('ERROR_CATCH:', [
-                'code' => $e->getCode(),
-                'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTrace()
-            ]);
+            if ($e instanceof Exception) {
+                return Responser::fail(
+                    status: Response::HTTP_INTERNAL_SERVER_ERROR,
+                    message: __('Something went wrong')
+                );
+            }
         });
     })->create();
