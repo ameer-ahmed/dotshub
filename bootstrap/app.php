@@ -112,10 +112,11 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
 
-            if ($e instanceof Exception) {
+            if ($e instanceof Exception && app()->environment() == 'production') {
                 return Responser::fail(
                     status: Response::HTTP_INTERNAL_SERVER_ERROR,
-                    message: __('Something went wrong')
+                    message: __('Something went wrong'),
+                    throwable: $e
                 );
             }
         });

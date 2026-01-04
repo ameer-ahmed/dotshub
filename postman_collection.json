@@ -103,7 +103,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@example.com\",\n    \"password\": \"Pass@123\",\n    \"tenant_name\": \"Acme Corporation\",\n    \"tenant_description\": \"Acme Corporation is a leading provider of innovative solutions in the technology sector, specializing in enterprise software development and cloud infrastructure services.\",\n    \"tenant_subdomain\": \"acme\"\n}"
+									"raw": "{\n    \"name\": \"John Doe\",\n    \"email\": \"john@gmail.com\",\n    \"password\": \"Pass@123\",\n    \"tenant_name\": \"Acme Corporation\",\n    \"tenant_description\": \"Acme Corporation is a leading provider of innovative solutions in the technology sector, specializing in enterprise software development and cloud infrastructure services.\",\n    \"tenant_subdomain\": \"acme\"\n}"
 								},
 								"url": {
 									"raw": "http://{{base_url}}/api/{{api_version}}/system/auth/sign/up",
@@ -185,7 +185,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"email\": \"john@example.com\",\n    \"password\": \"Pass@123\"\n}"
+									"raw": "{\n    \"email\": \"john@gmail.com\",\n    \"password\": \"Pass@123\"\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/auth/sign/in",
@@ -977,6 +977,425 @@
 									]
 								},
 								"description": "Update an existing setting"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Questions",
+					"description": "Question management endpoints for CRUD operations and question types",
+					"item": [
+						{
+							"name": "List Questions (Paginated)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Questions list retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    pm.test('Pagination data exists', function () {",
+											"        pm.expect(jsonData.data).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('current_page');",
+											"        pm.expect(jsonData.data).to.have.property('total');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions?page=1&per_page=15",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1",
+											"description": "Page number"
+										},
+										{
+											"key": "per_page",
+											"value": "15",
+											"description": "Items per page"
+										}
+									]
+								},
+								"description": "Get a paginated list of questions"
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Questions",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('All questions retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.be.an('array');",
+											"    });",
+											"    ",
+											"    // Save first question ID for testing",
+											"    if (jsonData.data && jsonData.data.length > 0) {",
+											"        pm.environment.set('question_id', jsonData.data[0].id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/*",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions",
+										"*"
+									]
+								},
+								"description": "Get all questions without pagination"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Question Types",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Question types retrieved', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.be.an('array');",
+											"    });",
+											"    ",
+											"    pm.test('Question types have required fields', function () {",
+											"        if (jsonData.data && jsonData.data.length > 0) {",
+											"            const type = jsonData.data[0];",
+											"            pm.expect(type).to.have.property('key');",
+											"            pm.expect(type).to.have.property('value');",
+											"            pm.expect(type).to.have.property('translation');",
+											"            pm.expect(type).to.have.property('full_translations');",
+											"        }",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/types",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions",
+										"types"
+									]
+								},
+								"description": "Get all available question types with translations"
+							},
+							"response": []
+						},
+						{
+							"name": "Get Question by ID",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Question retrieved successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"        pm.expect(jsonData.data).to.have.property('id');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions",
+										"{{question_id}}"
+									]
+								},
+								"description": "Get a specific question by ID"
+							},
+							"response": []
+						},
+						{
+							"name": "Create Question",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 201) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Question created successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"    ",
+											"    // Save the new question ID",
+											"    if (jsonData.data && jsonData.data.id) {",
+											"        pm.environment.set('question_id', jsonData.data.id);",
+											"        console.log('New question ID saved:', jsonData.data.id);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"What is your preferred contact method?\",\n    \"type\": \"RADIO\",\n    \"description\": \"Please select your preferred way to be contacted\",\n    \"is_required\": true,\n    \"order\": 1\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions"
+									]
+								},
+								"description": "Create a new question"
+							},
+							"response": []
+						},
+						{
+							"name": "Update Question",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const jsonData = pm.response.json();",
+											"    ",
+											"    pm.test('Question updated successfully', function () {",
+											"        pm.expect(jsonData).to.have.property('data');",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"What is your preferred contact method? (Updated)\",\n    \"type\": \"RADIO\",\n    \"description\": \"Please select your preferred way to be contacted - we value your privacy\",\n    \"is_required\": false,\n    \"order\": 2\n}"
+								},
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions",
+										"{{question_id}}"
+									]
+								},
+								"description": "Update an existing question"
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Question",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200 || pm.response.code === 204) {",
+											"    pm.test('Question deleted successfully', function () {",
+											"        pm.expect(pm.response.code).to.be.oneOf([200, 204]);",
+											"    });",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "X-Platform",
+										"value": "{{platform}}",
+										"type": "text"
+									},
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
+									"protocol": "http",
+									"host": [
+										"{{tenant_domain}}"
+									],
+									"path": [
+										"api",
+										"{{api_version}}",
+										"system",
+										"questions",
+										"{{question_id}}"
+									]
+								},
+								"description": "Delete a question by ID"
 							},
 							"response": []
 						}

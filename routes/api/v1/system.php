@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\V1\System\Auth\AuthController;
 use App\Http\Controllers\V1\System\Branch\BranchController;
+use App\Http\Controllers\V1\System\Question\QuestionController;
 use App\Http\Controllers\V1\System\Role\RoleController;
 use App\Http\Controllers\V1\System\Settings\SettingController;
 use Illuminate\Support\Facades\Route;
@@ -37,5 +38,15 @@ Route::group(['middleware' => 'auth:user'], function () {
     Route::group(['prefix' => 'settings', 'controller' => SettingController::class], function () {
         Route::get('/', 'index');
         Route::put('/{id}', 'update');
+    });
+
+    Route::group(['prefix' => 'questions', 'controller' => QuestionController::class], function () {
+        Route::get('/types', 'getTypes');
+        Route::get('/', 'index');
+        Route::get('/*', 'getAll');
+        Route::get('/{id}', 'show');
+        Route::post('/', 'store');
+        Route::put('/{id}', 'update');
+        Route::delete('/{id}', 'destroy');
     });
 });

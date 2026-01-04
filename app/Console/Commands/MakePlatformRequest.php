@@ -187,7 +187,8 @@ PHP;
         $newEntry = "{$abstractFqn} => {$implArray},";
 
         // Pattern to find the version block in getRequestImplementations
-        $versionPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(            \],)/s';
+        // More precise: capture content between version => [ and the next ],\n that's followed by either another version, default, or closing }
+        $versionPattern = '/(private function getRequestImplementations\(int \$version\): array\s*\{\s*return match \(\$version\) \{.*?' . $version . ' => \[)(.*?)(\n            \],\n(?=(?:            \d+|            default|        \})))/s';
 
         if (preg_match($versionPattern, $content, $matches)) {
             // Version block exists
@@ -204,7 +205,7 @@ PHP;
                 );
             } else {
                 // Add new entry before the closing bracket
-                $replacement = "$1$2                {$newEntry}\n$3";
+                $replacement = "$1$2\n                {$newEntry}$3";
                 $content = preg_replace($versionPattern, $replacement, $content, 1);
             }
         } else {

@@ -140,6 +140,22 @@ class PlatformServiceProvider extends ServiceProvider
                     \App\Http\Services\V1\Web\System\Settings\SettingService::class,
                     \App\Http\Services\V1\Mobile\System\Settings\SettingService::class,
                 ],
+                \App\Http\Services\V1\Abstracts\System\Question\QuestionAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Question\QuestionService::class,
+                    \App\Http\Services\V1\Mobile\System\Question\QuestionService::class,
+                ],
+                \App\Http\Services\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\QuestionOption\QuestionOptionService::class,
+                    \App\Http\Services\V1\Mobile\System\QuestionOption\QuestionOptionService::class,
+                ],
+                \App\Http\Services\V1\Abstracts\System\Questionnaire\QuestionnaireAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\Questionnaire\QuestionnaireService::class,
+                    \App\Http\Services\V1\Mobile\System\Questionnaire\QuestionnaireService::class,
+                ],
+                \App\Http\Services\V1\Abstracts\System\QuestionnaireQuestion\QuestionnaireQuestionAbstractService::class => [
+                    \App\Http\Services\V1\Web\System\QuestionnaireQuestion\QuestionnaireQuestionService::class,
+                    \App\Http\Services\V1\Mobile\System\QuestionnaireQuestion\QuestionnaireQuestionService::class,
+                ],
 
             ],
             // Add V2, V3, etc. here as you create them
@@ -176,6 +192,18 @@ class PlatformServiceProvider extends ServiceProvider
                     \App\Http\Requests\V1\Web\System\Settings\SettingRequest::class,
                     \App\Http\Requests\V1\Mobile\System\Settings\SettingRequest::class,
                 ],
+                \App\Http\Requests\V1\Abstracts\System\Question\QuestionAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Question\QuestionRequest::class,
+                    \App\Http\Requests\V1\Mobile\System\Question\QuestionRequest::class,
+                ],
+                \App\Http\Requests\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\QuestionOption\QuestionOptionRequest::class,
+                    \App\Http\Requests\V1\Mobile\System\QuestionOption\QuestionOptionRequest::class,
+                ],
+                \App\Http\Requests\V1\Abstracts\System\Questionnaire\QuestionnaireAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\Questionnaire\QuestionnaireRequest::class,
+                    \App\Http\Requests\V1\Mobile\System\Questionnaire\QuestionnaireRequest::class,
+                ],
 
             ],
             // Add V2, V3, etc. here as you create them
@@ -194,10 +222,29 @@ class PlatformServiceProvider extends ServiceProvider
                     \App\Http\Resources\V1\Web\System\Branch\BranchResource::class,
                     \App\Http\Resources\V1\Mobile\System\Branch\BranchResource::class,
                 ],
+                \App\Http\Resources\V1\Abstracts\System\Question\QuestionTypeAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\Question\QuestionTypeResource::class,
+                ],
                 \App\Http\Resources\V1\Abstracts\System\Settings\SettingAbstractResource::class => [
                     \App\Http\Resources\V1\Web\System\Settings\SettingResource::class,
                     \App\Http\Resources\V1\Mobile\System\Settings\SettingResource::class,
+                ],                \App\Http\Resources\V1\Abstracts\System\Question\QuestionAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\Question\QuestionResource::class,
+                    \App\Http\Resources\V1\Mobile\System\Question\QuestionResource::class,
                 ],
+                \App\Http\Resources\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\QuestionOption\QuestionOptionResource::class,
+                    \App\Http\Resources\V1\Mobile\System\QuestionOption\QuestionOptionResource::class,
+                ],
+                \App\Http\Resources\V1\Abstracts\System\Questionnaire\QuestionnaireAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\Questionnaire\QuestionnaireResource::class,
+                    \App\Http\Resources\V1\Mobile\System\Questionnaire\QuestionnaireResource::class,
+                ],
+                \App\Http\Resources\V1\Abstracts\System\QuestionnaireQuestion\QuestionnaireQuestionAbstractResource::class => [
+                    \App\Http\Resources\V1\Web\System\QuestionnaireQuestion\QuestionnaireQuestionResource::class,
+                    \App\Http\Resources\V1\Mobile\System\QuestionnaireQuestion\QuestionnaireQuestionResource::class,
+                ],
+
             ],
             // Add V2, V3, etc. here as you create them
             // 2 => [

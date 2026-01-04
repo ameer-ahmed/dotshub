@@ -109,7 +109,7 @@ POST http://localhost:8000/api/v1/system/auth/sign/up
 Body:
 {
   "name": "John Doe",
-  "email": "john@example.com",
+  "email": "john@gmail.com",
   "password": "password123",
   "password_confirmation": "password123",
   "company_name": "Acme Corp",
@@ -123,7 +123,7 @@ POST http://ameer.localhost:8000/api/v1/system/auth/sign/in
 
 Body:
 {
-  "email": "john@example.com",
+  "email": "john@gmail.com",
   "password": "password123"
 }
 
