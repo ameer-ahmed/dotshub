@@ -210,6 +210,11 @@ class PlatformServiceProvider extends ServiceProvider
             // 2 => [
             //     \App\Http\Requests\V2\Abstracts\... => [...],
             // ],
+            1 => [
+                \App\Http\Requests\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractRequest::class => [
+                    \App\Http\Requests\V1\Web\System\QuestionOption\QuestionOptionRequest::class,
+                ],
+            ],
             default => [],
         };
     }

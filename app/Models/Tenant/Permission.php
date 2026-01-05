@@ -2,12 +2,13 @@
 
 namespace App\Models\Tenant;
 
+use App\Traits\HasTranslationWithLanguageToggle;
 use Laratrust\Models\Permission as PermissionModel;
-use Spatie\Translatable\HasTranslations;
+
 
 class Permission extends PermissionModel
 {
-    use HasTranslations;
+    use HasTranslationWithLanguageToggle;
 
     public $guarded = [];
     protected $casts = [

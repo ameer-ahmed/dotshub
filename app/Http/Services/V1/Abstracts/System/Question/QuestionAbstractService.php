@@ -2,6 +2,7 @@
 
 namespace App\Http\Services\V1\Abstracts\System\Question;
 
+use App\DTOs\V1\System\QuestionOption\QuestionOptionDto;
 use App\Enums\QueryReturnType;
 use App\Enums\QuestionType;
 use App\Http\Helpers\Responser;
@@ -9,12 +10,16 @@ use App\Http\Requests\V1\Abstracts\System\Question\QuestionAbstractRequest;
 use App\Http\Resources\V1\Abstracts\System\Question\QuestionAbstractResource;
 use App\Http\Resources\V1\Abstracts\System\Question\QuestionTypeAbstractResource;
 use App\Http\Services\PlatformService;
+use App\Http\Services\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractService;
 use App\Repository\Contracts\Tenant\QuestionRepositoryInterface;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 abstract class QuestionAbstractService extends PlatformService
 {
     public function __construct(
-        private readonly QuestionRepositoryInterface $questionRepository
+        private readonly QuestionRepositoryInterface $questionRepository,
+        private readonly QuestionOptionAbstractService $questionOptionAbstractService,
     )
     {
     }
@@ -46,18 +51,41 @@ abstract class QuestionAbstractService extends PlatformService
     {
         $data = $request->only('title', 'type', 'icon');
 
-        $question = $this->questionRepository->create($data);
+        return DB::transaction(function () use ($request, $data) {
+            $question = $this->questionRepository->create($data);
 
-        return Responser::success(data: QuestionAbstractResource::make($question));
+            collect($request->validated('options'))?->each(function ($option) use ($question) {
+                $optionDto = new QuestionOptionDto(option: $option['option'], question_id: $question->id, sort: $option['sort'] ?? null);
+                $this->questionOptionAbstractService->store($optionDto);
+            });
+
+            return Responser::success(data: QuestionAbstractResource::make($question));
+        });
     }
 
     public function update(QuestionAbstractRequest $request, $id)
     {
-        $data = $request->validated();
+        $data = $request->only('title', 'type', 'icon');
 
-        $question = $this->questionRepository->update($id, $data);
+        return DB::transaction(function () use ($request, $id, $data) {
+            $question = $this->questionRepository->update($id, $data);
 
-        return Responser::success(data: QuestionAbstractResource::make($question));
+            $existingOptions = collect($request->validated('existing_options'));
+
+            $this->questionOptionAbstractService->syncExistingOptions($id, $existingOptions->pluck('id')?->toArray() ?? []);
+
+            $existingOptions->each(function ($option) use ($question) {
+                $optionDto = new QuestionOptionDto(option: $option['option'], question_id: $question->id, id: $option['id'], sort: $option['sort'] ?? null);
+                $this->questionOptionAbstractService->update($optionDto);
+            });
+
+            collect($request->validated('options'))?->each(function ($option) use ($question) {
+                $optionDto = new QuestionOptionDto(option: $option['option'], question_id: $question->id, sort: $option['sort'] ?? null);
+                $this->questionOptionAbstractService->store($optionDto);
+            });
+
+            return Responser::success(data: QuestionAbstractResource::make($question));
+        });
     }
 
     public function show($id)

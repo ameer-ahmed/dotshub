@@ -10,7 +10,9 @@ abstract class QuestionOptionAbstractResource extends PlatformResource
     {
         return [
             'id' => $this->id,
-            // TODO: add more fields
+            'option' => $this->option,
+            'option_translations' => $this->getTranslations('option'),
+            'sort' => $this->sort,
         ];
     }
 }

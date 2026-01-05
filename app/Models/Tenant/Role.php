@@ -2,13 +2,12 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Tenant;
+use App\Traits\HasTranslationWithLanguageToggle;
 use Laratrust\Models\Role as RoleModel;
-use Spatie\Translatable\HasTranslations;
 
 class Role extends RoleModel
 {
-    use HasTranslations;
+    use HasTranslationWithLanguageToggle;
 
     protected $fillable = [
         'name',

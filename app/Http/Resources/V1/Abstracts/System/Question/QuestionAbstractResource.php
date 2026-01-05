@@ -3,6 +3,7 @@
 namespace App\Http\Resources\V1\Abstracts\System\Question;
 
 use App\Http\Resources\PlatformResource;
+use App\Http\Resources\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractResource;
 
 abstract class QuestionAbstractResource extends PlatformResource
 {
@@ -14,6 +15,7 @@ abstract class QuestionAbstractResource extends PlatformResource
             'title_translations' => $this->getTranslations('title'),
             'type' => $this->type,
             'icon' => $this->icon,
+            'options' => QuestionOptionAbstractResource::collection($this->options)
         ];
     }
 }

@@ -1271,7 +1271,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"What is your preferred contact method?\",\n    \"type\": \"RADIO\",\n    \"description\": \"Please select your preferred way to be contacted\",\n    \"is_required\": true,\n    \"order\": 1\n}"
+									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟\",\n        \"en\": \"What is your preferred contact method?\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"ar\": \"البريد الإلكتروني\",\n            \"en\": \"Email\"\n        },\n        {\n            \"ar\": \"الهاتف\",\n            \"en\": \"Phone\"\n        },\n        {\n            \"ar\": \"الرسائل النصية\",\n            \"en\": \"SMS\"\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions",
@@ -1330,7 +1330,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": \"What is your preferred contact method? (Updated)\",\n    \"type\": \"RADIO\",\n    \"description\": \"Please select your preferred way to be contacted - we value your privacy\",\n    \"is_required\": false,\n    \"order\": 2\n}"
+									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟ (محدث)\",\n        \"en\": \"What is your preferred contact method? (Updated)\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"ar\": \"واتساب\",\n            \"en\": \"WhatsApp\"\n        }\n    ],\n    \"existing_options\": [\n        {\n            \"id\": 1,\n            \"option\": {\n                \"ar\": \"البريد الإلكتروني (محدث)\",\n                \"en\": \"Email (Updated)\"\n            }\n        },\n        {\n            \"id\": 2,\n            \"option\": {\n                \"ar\": \"الهاتف\",\n                \"en\": \"Phone\"\n            }\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",

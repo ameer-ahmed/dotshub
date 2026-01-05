@@ -8,6 +8,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
@@ -57,6 +58,10 @@ return Application::configure(basePath: dirname(__DIR__))
                 'line' => $e->getLine(),
                 'trace' => $e->getTrace()
             ]);
+
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
 
             if ($e instanceof TokenExpiredException) {
                 return Responser::fail(status: Response::HTTP_UNAUTHORIZED, message: 'Token expired');
@@ -112,12 +117,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 );
             }
 
-            if ($e instanceof Exception && app()->environment() == 'production') {
-                return Responser::fail(
-                    status: Response::HTTP_INTERNAL_SERVER_ERROR,
-                    message: __('Something went wrong'),
-                    throwable: $e
-                );
-            }
+//            if ($e instanceof Exception) {
+//                return Responser::fail(
+//                    status: Response::HTTP_INTERNAL_SERVER_ERROR,
+//                    message: __('Something went wrong'),
+//                    throwable: $e
+//                );
+//            }
         });
     })->create();

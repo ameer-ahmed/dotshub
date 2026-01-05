@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\HasTranslationWithLanguageToggle;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+
 
 class Plan extends Model
 {
-    use HasFactory, HasTranslations;
+    use HasFactory, HasTranslationWithLanguageToggle;
     protected $guarded = [];
 
     public array $translatable = ['name', 'description'];

@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('questionnaires', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
+            $table->json('title');
             $table->foreignId('created_by')->constrained('users')->cascadeOnUpdate()->cascadeOnDelete();
-            $table->morphs('relatable');
+            $table->nullableMorphs('relatable');
             $table->timestamps();
             $table->softDeletes();
         });

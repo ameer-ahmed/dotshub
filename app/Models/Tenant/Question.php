@@ -4,18 +4,20 @@ namespace App\Models\Tenant;
 
 use App\Enums\QuestionType;
 use App\Traits\HasCreatedBy;
+use App\Traits\HasTranslationWithLanguageToggle;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Translatable\HasTranslations;
+
 
 class Question extends Model
 {
-    use HasTranslations {
-        getTranslation as getTranslationTest;
-    }
+    use HasTranslationWithLanguageToggle;
     use SoftDeletes, HasCreatedBy;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'title', 'icon', 'created_by', 'type'
+    ];
     protected $casts = [
         'type' => QuestionType::class,
     ];
@@ -23,12 +25,8 @@ class Question extends Model
         'title'
     ];
 
-//    public function getTranslation(string $key, string $locale, bool $useFallbackLocale = true): mixed
-//    {
-//        $translation = $this->getTranslationTest($key, $locale, $useFallbackLocale);
-//        if (empty($translation)) {
-//            $translation = $this->getTranslationTest($key, $locale == 'en' ? 'ar' : 'en', $useFallbackLocale);
-//        }
-//        return $translation;
-//    }
+    public function options()
+    {
+        return $this->hasMany(QuestionOption::class);
+    }
 }

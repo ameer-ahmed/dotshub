@@ -15,4 +15,9 @@ class QuestionOptionRepository extends Repository implements QuestionOptionRepos
     {
         parent::__construct($model);
     }
+
+    public function syncExistingOptions(int $questionId, array $optionsIds = [])
+    {
+        return $this->model::query()->where('question_id', $questionId)->whereNotIn('id', $optionsIds)->delete();
+    }
 }
