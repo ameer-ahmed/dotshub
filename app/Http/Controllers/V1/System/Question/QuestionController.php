@@ -11,7 +11,6 @@ class QuestionController extends Controller
 {
     public function __construct(
         private readonly QuestionAbstractService $questionAbstractService,
-        private readonly QuestionOptionAbstractService $questionOptionAbstractService,
     ) {}
 
     public function index()

@@ -12,13 +12,12 @@ use App\Http\Resources\V1\Abstracts\System\Question\QuestionTypeAbstractResource
 use App\Http\Services\PlatformService;
 use App\Http\Services\V1\Abstracts\System\QuestionOption\QuestionOptionAbstractService;
 use App\Repository\Contracts\Tenant\QuestionRepositoryInterface;
-use Exception;
 use Illuminate\Support\Facades\DB;
 
 abstract class QuestionAbstractService extends PlatformService
 {
     public function __construct(
-        private readonly QuestionRepositoryInterface $questionRepository,
+        private readonly QuestionRepositoryInterface   $questionRepository,
         private readonly QuestionOptionAbstractService $questionOptionAbstractService,
     )
     {

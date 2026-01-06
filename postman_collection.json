@@ -107,7 +107,7 @@
 								},
 								"url": {
 									"raw": "http://{{base_url}}/api/{{api_version}}/system/auth/sign/up",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{base_url}}"
 									],
@@ -189,7 +189,7 @@
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/auth/sign/in",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -248,7 +248,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/auth/sign/out",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -312,7 +312,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches?page=1&per_page=15",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -380,7 +380,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/*",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -434,7 +434,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -496,11 +496,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Main Branch\",\n    \"location\": \"123 Main St, City, Country\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"main@example.com\"\n}"
+									"raw": "{\n    \"name\": \"Main Branch\",\n    \"location\": \"123 Main St, City, Country\"\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -555,11 +555,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Main Branch - Updated\",\n    \"location\": \"456 New St, City, Country\",\n    \"phone\": \"+1234567890\",\n    \"email\": \"main.updated@example.com\"\n}"
+									"raw": "{\n    \"name\": \"Main Branch - Updated\",\n    \"location\": \"456 New St, City, Country\"\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -608,7 +608,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/branches/{{branch_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -670,7 +670,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -731,11 +731,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Manager\",\n    \"display_name\": \"Branch Manager\",\n    \"description\": \"Manages branch operations and staff\",\n    \"permissions\": [\n        \"users.view\",\n        \"users.create\",\n        \"branches.view\"\n    ]\n}"
+									"raw": "{\n    \"display_name\": {\n        \"ar\": \"مدير الفرع\",\n        \"en\": \"Branch Manager\"\n    },\n    \"description\": {\n        \"ar\": \"يدير عمليات الفرع والموظفين\",\n        \"en\": \"Manages branch operations and staff\"\n    },\n    \"permissions\": [\n        \"create-roles\",\n        \"update-roles\",\n        \"delete-roles\"\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -790,11 +790,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"name\": \"Manager\",\n    \"display_name\": \"Senior Manager\",\n    \"description\": \"Manages branch operations, staff, and reports\",\n    \"permissions\": [\n        \"users.view\",\n        \"users.create\",\n        \"users.edit\",\n        \"branches.view\",\n        \"reports.view\"\n    ]\n}"
+									"raw": "{\n    \"display_name\": {\n        \"ar\": \"مدير أول\",\n        \"en\": \"Senior Manager\"\n    },\n    \"description\": {\n        \"ar\": \"يدير عمليات الفرع والموظفين والتقارير\",\n        \"en\": \"Manages branch operations, staff, and reports\"\n    },\n    \"permissions\": [\n        \"create-roles\",\n        \"update-roles\",\n        \"delete-roles\"\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles/{{role_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -843,7 +843,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/roles/{{role_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -905,7 +905,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/settings",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -960,11 +960,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"key\": \"app_name\",\n    \"value\": \"My Application\",\n    \"description\": \"Application display name\"\n}"
+									"raw": "{\n    \"value\": \"My Application\"\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/settings/{{setting_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1027,7 +1027,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions?page=1&per_page=15",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1095,7 +1095,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/*",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1157,7 +1157,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/types",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1209,7 +1209,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1271,11 +1271,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟\",\n        \"en\": \"What is your preferred contact method?\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"ar\": \"البريد الإلكتروني\",\n            \"en\": \"Email\"\n        },\n        {\n            \"ar\": \"الهاتف\",\n            \"en\": \"Phone\"\n        },\n        {\n            \"ar\": \"الرسائل النصية\",\n            \"en\": \"SMS\"\n        }\n    ]\n}"
+									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟\",\n        \"en\": \"What is your preferred contact method?\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"option\": {\n                \"ar\": \"البريد الإلكتروني\",\n                \"en\": \"Email\"\n            },\n            \"sort\": 1\n        },\n        {\n            \"option\": {\n                \"ar\": \"الهاتف\",\n                \"en\": \"Phone\"\n            },\n            \"sort\": 2\n        },\n        {\n            \"option\": {\n                \"ar\": \"الرسائل النصية\",\n                \"en\": \"SMS\"\n            },\n            \"sort\": 3\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1330,11 +1330,11 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟ (محدث)\",\n        \"en\": \"What is your preferred contact method? (Updated)\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"ar\": \"واتساب\",\n            \"en\": \"WhatsApp\"\n        }\n    ],\n    \"existing_options\": [\n        {\n            \"id\": 1,\n            \"option\": {\n                \"ar\": \"البريد الإلكتروني (محدث)\",\n                \"en\": \"Email (Updated)\"\n            }\n        },\n        {\n            \"id\": 2,\n            \"option\": {\n                \"ar\": \"الهاتف\",\n                \"en\": \"Phone\"\n            }\n        }\n    ]\n}"
+									"raw": "{\n    \"title\": {\n        \"ar\": \"ما هي طريقة التواصل المفضلة لديك؟ (محدث)\",\n        \"en\": \"What is your preferred contact method? (Updated)\"\n    },\n    \"type\": \"RADIO\",\n    \"icon\": \"contact\",\n    \"options\": [\n        {\n            \"option\": {\n                \"ar\": \"واتساب\",\n                \"en\": \"WhatsApp\"\n            },\n            \"sort\": 3\n        }\n    ],\n    \"existing_options\": [\n        {\n            \"id\": 1,\n            \"option\": {\n                \"ar\": \"البريد الإلكتروني (محدث)\",\n                \"en\": \"Email (Updated)\"\n            },\n            \"sort\": 1\n        },\n        {\n            \"id\": 2,\n            \"option\": {\n                \"ar\": \"الهاتف\",\n                \"en\": \"Phone\"\n            },\n            \"sort\": 2\n        }\n    ]\n}"
 								},
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1383,7 +1383,7 @@
 								],
 								"url": {
 									"raw": "http://{{tenant_domain}}/api/{{api_version}}/system/questions/{{question_id}}",
-									"protocol": "http",
+									"protocol": "{{protocol}}",
 									"host": [
 										"{{tenant_domain}}"
 									],
@@ -1423,7 +1423,7 @@
 						],
 						"url": {
 							"raw": "http://{{base_url}}/api/{{api_version}}/admin",
-							"protocol": "http",
+							"protocol": "{{protocol}}",
 							"host": [
 								"{{base_url}}"
 							],

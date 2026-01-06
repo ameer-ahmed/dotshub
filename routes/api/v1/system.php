@@ -37,16 +37,16 @@ Route::group(['middleware' => 'auth:user'], function () {
 
     Route::group(['prefix' => 'settings', 'controller' => SettingController::class], function () {
         Route::get('/', 'index');
-        Route::put('/{id}', 'update');
+        Route::put('{id}', 'update');
     });
 
     Route::group(['prefix' => 'questions', 'controller' => QuestionController::class], function () {
         Route::get('/types', 'getTypes');
         Route::get('/', 'index');
         Route::get('/*', 'getAll');
-        Route::get('/{id}', 'show');
+        Route::get('{id}', 'show');
         Route::post('/', 'store');
-        Route::put('/{id}', 'update');
-        Route::delete('/{id}', 'destroy');
+        Route::put('{id}', 'update');
+        Route::delete('{id}', 'destroy');
     });
 });
