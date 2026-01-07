@@ -10,4 +10,9 @@ class QuestionnaireController extends Controller
     public function __construct(
         private readonly QuestionnaireAbstractService $questionnaireAbstractService,
     ) {}
+
+    public function create()
+    {
+
+    }
 }
